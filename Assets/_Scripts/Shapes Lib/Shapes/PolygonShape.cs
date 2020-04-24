@@ -90,28 +90,30 @@ public class PolygonShape : Shape
     {
         if ((closeShape && pointsToRender.Length < 3) || (!closeShape && pointsToRender.Length < 2)) { return inputDependencies; }
 
-        int pointCount = pointsToRender.Length - (closeShape ? 0 : 1);
+        int pointCount = pointsToRender.Length - (Extensions.Approximately(pointsToRender[0], pointsToRender[pointsToRender.Length - 1]) ? 1 : 0);
         NativeArray<float3> positionsIn = new NativeArray<float3>(pointCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         pointsToRender.CopyToNativeArray(ref positionsIn);
         NativeArray<float3> quadPositions = new NativeArray<float3>(pointCount * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         CalculateQuadsJob calculateQuadsJob = new CalculateQuadsJob
         {
+            Epsilon = EPSILON,
             Right3 = new float3(1, 0, 0),
             CloseShape = closeShape,
             Thickness = quadLineThickness,
             BillboardMethod = billboardMethod,
             LineAlignment = quadLineAlignment,
             PointsToRender = positionsIn,
-            QuadPositions = quadPositions
+            QuadPositions = quadPositions,
         };
         inputDependencies = calculateQuadsJob.Schedule(inputDependencies);
         inputDependencies.Complete();
 
         Extensions.ClearEmptyQuads(ref quadPositions);
-        /*if(!closeShape)
+        if (!closeShape)
         {
             Extensions.RemoveQuadAtIndex(ref quadPositions, pointsToRender.Length - 1);
-        }*/
+        }
+
         pointsToRender = Extensions.ToArray(ref quadPositions);
 
         positionsIn.Dispose();
@@ -124,6 +126,7 @@ public class PolygonShape : Shape
     {
         //[ReadOnly] public float3 CameraPosition;
         //[ReadOnly] public quaternion CameraRotation;
+        [ReadOnly] public float Epsilon;
         [ReadOnly] public float3 Right3;
         [ReadOnly] public bool CloseShape;
         [ReadOnly] public float Thickness;
@@ -144,10 +147,10 @@ public class PolygonShape : Shape
                     ZForward();
                     break;
                 case BillboardMethod.FaceCameraPosition:
-                    FaceCameraPosition();
+                    FaceCamera(false);
                     break;
                 case BillboardMethod.FaceCameraPlane:
-                    FaceCameraPlane();
+                    FaceCamera(true);
                     break;
             }
         }
@@ -161,33 +164,52 @@ public class PolygonShape : Shape
                 float3 c = PointsToRender[(i + 1).Wrap(0, PointsToRender.Length, 1)];
                 float3 d = PointsToRender[(i + 2).Wrap(0, PointsToRender.Length, 1)];
 
-                float3 abDist = b - a;
-                float3 bcDist = c - b;
-                float3 cdDist = d - c;
+                float3 abDist = math.normalize(b - a);
+                float3 bcDist = math.normalize(c - b);
+                float3 cdDist = math.normalize(d - c);
 
-                float3 directionABC = math.normalize(math.lerp(-abDist, bcDist, 0.5f));
-                float3 directionBCD = math.normalize(math.lerp(-bcDist, cdDist, 0.5f));
+                if (!CloseShape)
+                {
+                    if (i == 0)
+                    {
+                        abDist = -bcDist;
+                    }
+                    else if (i == PointsToRender.Length - 1)
+                    {
+                        cdDist = -bcDist;
+                    }
+                }
 
-                float radiansA = Extensions.RadiansSigned(-abDist, directionABC, new float3(0, 0, 1));
-                float directionMultiplierABC = Thickness / math.sin(radiansA);
+                float3 directionABC = math.normalize(bcDist - abDist);
+                float3 directionBCD = math.normalize(cdDist - bcDist);
 
-                float radiansB = Extensions.RadiansSigned(-bcDist, directionBCD, new float3(0, 0, 1));
-                float directionMultiplierBCD = Thickness / math.sin(radiansB);
+                float radiansA = Extensions.RadiansSigned(-abDist, bcDist, new float3(0, 0, 1)) * 0.5f;
+                float directionMultiplierABC = radiansA != 0 ? Thickness / math.sin(radiansA) : 0;
+
+                float radiansB = Extensions.RadiansSigned(-bcDist, cdDist, new float3(0, 0, 1)) * 0.5f;
+                float directionMultiplierBCD = radiansB != 0 ? Thickness / math.sin(radiansB) : 0;
 
                 directionABC *= directionMultiplierABC;
                 directionBCD *= directionMultiplierBCD;
 
-                float q0Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 1;
-                float q1Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 0;
-                float q2Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 0;
-                float q3Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 1;
+                float q03Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 1;
+                float q12Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 0;
 
                 int quadStart = i * 4;
 
-                QuadPositions[quadStart + 0] = b - directionABC * q0Mult;
-                QuadPositions[quadStart + 1] = b + directionABC * q1Mult;
-                QuadPositions[quadStart + 2] = c + directionBCD * q2Mult;
-                QuadPositions[quadStart + 3] = c - directionBCD * q3Mult;
+                QuadPositions[quadStart + 0] = b - directionABC * q03Mult;
+                QuadPositions[quadStart + 1] = b + directionABC * q12Mult;
+                QuadPositions[quadStart + 2] = c + directionBCD * q12Mult;
+                QuadPositions[quadStart + 3] = c - directionBCD * q03Mult;
+            }
+
+        }
+
+        private void AverageOpen()
+        {
+            for (int i = 0; i < PointsToRender.Length; i++)
+            {
+
             }
         }
 
@@ -196,12 +218,7 @@ public class PolygonShape : Shape
             throw new System.NotImplementedException();
         }
 
-        private void FaceCameraPosition()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private void FaceCameraPlane()
+        private void FaceCamera(bool facePlane)
         {
             throw new System.NotImplementedException();
         }
@@ -232,7 +249,7 @@ public class PolygonShape : Shape
                 break;
         }
 
-        for(int i = 0; i < points.Length; i++)
+        for (int i = 0; i < points.Length; i++)
         {
             points[i] -= center;
         }

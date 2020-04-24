@@ -6,6 +6,8 @@ using Unity.Jobs;
 [System.Serializable]
 public abstract class Shape
 {
+    protected const float EPSILON = 0.0001f;
+
     public Vector3 position;
     public Vector3 eulerRotation;
     public Quaternion Rotation

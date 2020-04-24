@@ -124,7 +124,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &703672453
+--- !u!1 &528155790
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -132,22 +132,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 703672455}
-  - component: {fileID: 703672454}
+  - component: {fileID: 528155792}
+  - component: {fileID: 528155791}
   m_Layer: 0
-  m_Name: SR Eye
+  m_Name: Testing Testing 124
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &703672454
+--- !u!114 &528155791
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 703672453}
+  m_GameObject: {fileID: 528155790}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f8588d1a96514401920c9ef95dea77c, type: 3}
@@ -156,20 +156,20 @@ MonoBehaviour:
   renderInEditMode: 1
   vertexColorMaterial: {fileID: 2100000, guid: 3153b695cc62541df98307bf83dd6ee0, type: 2}
   shapes:
-  - {fileID: 11400000, guid: dcd06077a4c1c4b79a5fc36cc6718199, type: 2}
---- !u!4 &703672455
+  - {fileID: 11400000, guid: ef43cb0c64f17482987f74064b2bacaf, type: 2}
+--- !u!4 &528155792
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 703672453}
+  m_GameObject: {fileID: 528155790}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.25, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1259125879
 GameObject:
@@ -286,55 +286,6 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
---- !u!1 &1873656118
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1873656120}
-  - component: {fileID: 1873656119}
-  m_Layer: 0
-  m_Name: SR Tri
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1873656119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1873656118}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f8588d1a96514401920c9ef95dea77c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  renderInEditMode: 1
-  vertexColorMaterial: {fileID: 2100000, guid: 3153b695cc62541df98307bf83dd6ee0, type: 2}
-  shapes:
-  - {fileID: 11400000, guid: 1733758047aeb444999e080b3071e1a0, type: 2}
-  - {fileID: 11400000, guid: e036cf2b718ca47af850db8c2586a41f, type: 2}
-  - {fileID: 11400000, guid: 72549176c011446aeb9b02e320d4fc2b, type: 2}
---- !u!4 &1873656120
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1873656118}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.25, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1934909776
 GameObject:
   m_ObjectHideFlags: 0
@@ -346,12 +297,12 @@ GameObject:
   - component: {fileID: 1934909778}
   - component: {fileID: 1934909777}
   m_Layer: 0
-  m_Name: Shape Renderer Rainbow Squares
+  m_Name: Testing Testing 123
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1934909777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,15 +318,7 @@ MonoBehaviour:
   renderInEditMode: 1
   vertexColorMaterial: {fileID: 2100000, guid: 3153b695cc62541df98307bf83dd6ee0, type: 2}
   shapes:
-  - {fileID: 11400000, guid: ef43cb0c64f17482987f74064b2bacaf, type: 2}
-  - {fileID: 11400000, guid: ea3112306aa5d45569decc8069d5f6e4, type: 2}
-  - {fileID: 11400000, guid: b9dccb6bdfaeb49b5b4200182d3f40bc, type: 2}
-  - {fileID: 11400000, guid: 0103b97dc24064d57913332b0af5d7ef, type: 2}
-  - {fileID: 11400000, guid: c5a7f8e604f1447dd894af48d4f3be81, type: 2}
-  - {fileID: 11400000, guid: 2180ebb8fae714a058bded5e635ff9db, type: 2}
-  - {fileID: 11400000, guid: 361ac5a0e0385492fa811aee09370461, type: 2}
-  - {fileID: 11400000, guid: 4efa0fa55e03b4b5cb98965fd1f55c01, type: 2}
-  - {fileID: 11400000, guid: 7383eac7850654ec6baabf002f27861c, type: 2}
+  - {fileID: 11400000, guid: 94bc479f87db14558ba70912aab5382b, type: 2}
 --- !u!4 &1934909778
 Transform:
   m_ObjectHideFlags: 0

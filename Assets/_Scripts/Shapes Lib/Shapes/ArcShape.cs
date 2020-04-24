@@ -16,7 +16,9 @@ public class ArcShape : PolygonShape
 
     public override JobHandle PreTransformJobs(JobHandle inputDependencies)
     {
-        NativeArray<float3> positions = new NativeArray<float3>(segments + 1, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        closeShape = math.abs(angleA - angleB) % 360 == 0;
+
+        NativeArray <float3> positions = new NativeArray<float3>(segments + 1, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         CalculateSegmentsJob calculateSegmentsJob = new CalculateSegmentsJob
         {
             Right3 = Vector3.right,
