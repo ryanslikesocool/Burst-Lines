@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 10b19fe29beee4f958e922c7aaeca5f3, type: 3}
-  m_Name: Miter Pink
+  m_Name: Miter Red
   m_EditorClassIdentifier: 
   shape:
     position: {x: 0, y: 0, z: 0}
@@ -19,7 +19,7 @@ MonoBehaviour:
     rendererType: 1
     color:
       serializedVersion: 2
-      rgba: 4284430335
+      rgba: 4281351167
     billboardMethod: 0
     quadLineThickness: 0.1
     quadLineAlignment: 1

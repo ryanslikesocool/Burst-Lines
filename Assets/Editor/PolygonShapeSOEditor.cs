@@ -3,45 +3,48 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(PolygonShapeSO))]
-public class PolygonShapeSOEditor : ShapeSOEditor
+namespace ifelse.Shapes
 {
-    private PolygonShape polygonShape;
-
-    private SerializedProperty closeShape;
-    private SerializedProperty points;
-
-    public override void OnEnable()
+    [CustomEditor(typeof(PolygonShapeSO))]
+    public class PolygonShapeSOEditor : ShapeSOEditor
     {
-        base.OnEnable();
+        private PolygonShape polygonShape;
 
-        polygonShape = ((PolygonShapeSO)scriptableObject).shape;
+        private SerializedProperty closeShape;
+        private SerializedProperty points;
 
-        closeShape = shape.FindPropertyRelative("closeShape");
-        points = shape.FindPropertyRelative("points");
+        public override void OnEnable()
+        {
+            base.OnEnable();
 
-        SceneView.duringSceneGui += DuringSceneGUI;
-    }
+            polygonShape = ((PolygonShapeSO)scriptableObject).shape;
 
-    private void OnDisable()
-    {
-        SceneView.duringSceneGui -= DuringSceneGUI;
-    }
+            closeShape = shape.FindPropertyRelative("closeShape");
+            points = shape.FindPropertyRelative("points");
 
-    public override void OnInspectorGUI()
-    {
-        serializedObject.Update();
+            SceneView.duringSceneGui += DuringSceneGUI;
+        }
 
-        base.OnInspectorGUI();
+        private void OnDisable()
+        {
+            SceneView.duringSceneGui -= DuringSceneGUI;
+        }
 
-        ShapeEditors.PolygonShapeEditor(closeShape, points);
-        ShapeEditors.CenterPolygonEditor(polygonShape);
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
 
-        serializedObject.ApplyModifiedProperties();
-    }
+            base.OnInspectorGUI();
 
-    public override void DuringSceneGUI(SceneView sceneView)
-    {
-        ShapeEditors.DrawHandles(scriptableObject, polygonShape, Tools.current);
+            ShapeEditors.PolygonShapeEditor(closeShape, points);
+            ShapeEditors.CenterPolygonEditor(polygonShape);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        public override void DuringSceneGUI(SceneView sceneView)
+        {
+            ShapeEditors.DrawHandles(scriptableObject, polygonShape, Tools.current);
+        }
     }
 }

@@ -3,48 +3,51 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(ArcShapeSO))]
-public class ArcShapeSOEditor : ShapeSOEditor
+namespace ifelse.Shapes
 {
-    private ArcShape arcShape;
-
-    private SerializedProperty angleA;
-    private SerializedProperty angleB;
-    private SerializedProperty radius;
-    private SerializedProperty segments;
-
-    public override void OnEnable()
+    [CustomEditor(typeof(ArcShapeSO))]
+    public class ArcShapeSOEditor : ShapeSOEditor
     {
-        base.OnEnable();
+        private ArcShape arcShape;
 
-        arcShape = ((ArcShapeSO)scriptableObject).shape;
+        private SerializedProperty angleA;
+        private SerializedProperty angleB;
+        private SerializedProperty radius;
+        private SerializedProperty segments;
 
-        angleA = shape.FindPropertyRelative("angleA");
-        angleB = shape.FindPropertyRelative("angleB");
-        radius = shape.FindPropertyRelative("radius");
-        segments = shape.FindPropertyRelative("segments");
+        public override void OnEnable()
+        {
+            base.OnEnable();
 
-        SceneView.duringSceneGui += DuringSceneGUI;
-    }
+            arcShape = ((ArcShapeSO)scriptableObject).shape;
 
-    private void OnDisable()
-    {
-        SceneView.duringSceneGui -= DuringSceneGUI;
-    }
+            angleA = shape.FindPropertyRelative("angleA");
+            angleB = shape.FindPropertyRelative("angleB");
+            radius = shape.FindPropertyRelative("radius");
+            segments = shape.FindPropertyRelative("segments");
 
-    public override void OnInspectorGUI()
-    {
-        serializedObject.Update();
+            SceneView.duringSceneGui += DuringSceneGUI;
+        }
 
-        base.OnInspectorGUI();
+        private void OnDisable()
+        {
+            SceneView.duringSceneGui -= DuringSceneGUI;
+        }
 
-        ShapeEditors.ArcShapeEditor(angleA, angleB, radius, segments);
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
 
-        serializedObject.ApplyModifiedProperties();
-    }
+            base.OnInspectorGUI();
 
-    public override void DuringSceneGUI(SceneView sceneView)
-    {
-        ShapeEditors.DrawHandles(scriptableObject, arcShape, Tools.current);
+            ShapeEditors.ArcShapeEditor(angleA, angleB, radius, segments);
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        public override void DuringSceneGUI(SceneView sceneView)
+        {
+            ShapeEditors.DrawHandles(scriptableObject, arcShape, Tools.current);
+        }
     }
 }
