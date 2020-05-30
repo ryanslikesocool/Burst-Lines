@@ -54,7 +54,7 @@ namespace ifelse.Shapes
             EditorGUILayout.PropertyField(angleA);
             EditorGUILayout.PropertyField(angleB);
             EditorGUILayout.PropertyField(radius);
-            EditorGUILayout.PropertyField(segments);
+            EditorGUILayout.IntSlider(segments, 3, 128);
 
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
@@ -71,6 +71,31 @@ namespace ifelse.Shapes
                 shape.CenterPointsTo(CenterMode.Average);
             }
             EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+        }
+
+        public static void CapEditor(SerializedProperty capA, SerializedProperty capDetailA, SerializedProperty capB, SerializedProperty capDetailB, bool hide)
+        {
+            if (hide) { return; }
+
+            EditorGUILayout.LabelField("Caps", EditorStyles.boldLabel);
+
+            EditorGUILayout.PropertyField(capA);
+            if ((CapType)capA.enumValueIndex == CapType.Rounded)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.IntSlider(capDetailA, 1, 16);
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.PropertyField(capB);
+            if ((CapType)capB.enumValueIndex == CapType.Rounded)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.IntSlider(capDetailB, 1, 16);
+                EditorGUI.indentLevel--;
+            }
 
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
         }

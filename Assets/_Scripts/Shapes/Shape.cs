@@ -28,6 +28,11 @@ namespace ifelse.Shapes
         public float quadLineThickness;
         public QuadLineAlignment quadLineAlignment;
 
+        public CapType capA;
+        public int capDetailA;
+        public CapType capB;
+        public int capDetailB;
+
         public virtual void Render()
         {
             if (mesh != null)

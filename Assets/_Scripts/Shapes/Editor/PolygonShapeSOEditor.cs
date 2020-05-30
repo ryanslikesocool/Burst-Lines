@@ -36,6 +36,9 @@ namespace ifelse.Shapes
 
             base.OnInspectorGUI();
 
+            bool hideCap = (RendererType)rendererType.enumValueIndex == RendererType.PixelLine;
+            ShapeEditors.CapEditor(capA, capDetailA, capB, capDetailB, hideCap);
+
             ShapeEditors.PolygonShapeEditor(closeShape, points);
             ShapeEditors.CenterPolygonEditor(polygonShape);
 

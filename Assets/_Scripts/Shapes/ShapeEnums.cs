@@ -32,7 +32,6 @@ namespace ifelse.Shapes
     public enum CapType
     {
         None,
-        Point,
         Square,
         Rounded
     }

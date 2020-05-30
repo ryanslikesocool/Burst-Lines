@@ -22,6 +22,11 @@ namespace ifelse.Shapes
         protected SerializedProperty quadLineAlignment;
         protected SerializedProperty quadLineThickness;
 
+        protected SerializedProperty capA;
+        protected SerializedProperty capDetailA;
+        protected SerializedProperty capB;
+        protected SerializedProperty capDetailB;
+
         public virtual void OnEnable()
         {
             scriptableObject = (ShapeSO)target;
@@ -37,6 +42,11 @@ namespace ifelse.Shapes
             billboardMethod = shape.FindPropertyRelative("billboardMethod");
             quadLineAlignment = shape.FindPropertyRelative("quadLineAlignment");
             quadLineThickness = shape.FindPropertyRelative("quadLineThickness");
+
+            capA = shape.FindPropertyRelative("capA");
+            capDetailA = shape.FindPropertyRelative("capDetailA");
+            capB = shape.FindPropertyRelative("capB");
+            capDetailB = shape.FindPropertyRelative("capDetailB");
         }
 
         public override void OnInspectorGUI()

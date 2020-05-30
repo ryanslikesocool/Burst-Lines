@@ -24,6 +24,10 @@ MonoBehaviour:
     billboardMethod: 0
     quadLineThickness: 0.5
     quadLineAlignment: 0
+    capA: 0
+    capDetailA: 0
+    capB: 0
+    capDetailB: 0
     closeShape: 0
     points:
     - {x: 1, y: 0, z: 0}

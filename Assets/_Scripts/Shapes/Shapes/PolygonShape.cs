@@ -155,6 +155,8 @@ namespace ifelse.Shapes
                 LineAlignment = quadLineAlignment,
                 Points = positionsIn,
                 QuadPositions = quadPositions,
+                CapA = capA,
+                CapB = capB
             };
             inputDependencies = calculateQuadsJob.Schedule(positionsIn.Length, 64, inputDependencies);
             inputDependencies.Complete();
