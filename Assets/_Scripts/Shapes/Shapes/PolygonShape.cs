@@ -143,11 +143,12 @@ namespace ifelse.Shapes
             NativeArray<Vector3> nativePoints = new NativeArray<Vector3>(pointsToRender, Allocator.TempJob);
             NativeArray<float3> positionsIn = nativePoints.Reinterpret<float3>();
 
-            NativeArray<float3> quadPositions = new NativeArray<float3>(pointCount * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            NativeArray<float3> quadPositions = new NativeArray<float3>(positionsIn.Length * 4, Allocator.TempJob);
             CalculateQuadsJobv2 calculateQuadsJob = new CalculateQuadsJobv2
             {
                 Epsilon = EPSILON,
                 Right3 = new float3(1, 0, 0),
+                QuaterTurn = quaternion.Euler(0, 0, math.PI * 0.5f),
                 CloseShape = closeShape,
                 Thickness = quadLineThickness,
                 BillboardMethod = billboardMethod,
@@ -158,7 +159,6 @@ namespace ifelse.Shapes
             inputDependencies = calculateQuadsJob.Schedule(positionsIn.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
-            Extensions.ClearEmptyQuads(ref quadPositions);
             if (!closeShape)
             {
                 Extensions.RemoveQuadAtIndex(ref quadPositions, pointsToRender.Length - 1);
@@ -176,6 +176,7 @@ namespace ifelse.Shapes
         {
             [ReadOnly] public float Epsilon;
             [ReadOnly] public float3 Right3;
+            [ReadOnly] public quaternion QuaterTurn;
             [ReadOnly] public bool CloseShape;
             [ReadOnly] public float Thickness;
             [ReadOnly] public BillboardMethod BillboardMethod;
@@ -213,18 +214,6 @@ namespace ifelse.Shapes
                 float3 bcDist = math.normalize(c - b);
                 float3 cdDist = math.normalize(d - c);
 
-                if (!CloseShape)
-                {
-                    if (index == 0)
-                    {
-                        abDist = -bcDist;
-                    }
-                    else if (index == Points.Length - 1)
-                    {
-                        cdDist = -bcDist;
-                    }
-                }
-
                 float3 directionABC = math.normalize(bcDist - abDist);
                 float3 directionBCD = math.normalize(cdDist - bcDist);
 
@@ -239,6 +228,30 @@ namespace ifelse.Shapes
 
                 float q03Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 1;
                 float q12Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 0;
+
+                if (!CloseShape)
+                {
+                    if (index == 0)
+                    {
+                        directionABC = math.rotate(QuaterTurn, math.normalize(b - c)) * Thickness;
+                    }
+                    else if (index == Points.Length - 2)
+                    {
+                        directionBCD = math.rotate(QuaterTurn, math.normalize(b - c)) * Thickness;
+                    }
+                }
+
+                if (Extensions.Approximately(b, c))
+                {
+                    if (index == 0)
+                    {
+                        directionABC = math.rotate(QuaterTurn, math.normalize(b - c)) * Thickness;
+                    }
+                    else if (index == Points.Length - 1)
+                    {
+                        directionBCD = math.rotate(QuaterTurn, math.normalize(b - c)) * Thickness;
+                    }
+                }
 
                 int quadStart = index * 4;
 

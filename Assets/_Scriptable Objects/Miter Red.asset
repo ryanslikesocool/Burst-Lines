@@ -20,6 +20,7 @@ MonoBehaviour:
     color:
       serializedVersion: 2
       rgba: 4281351167
+    mesh: {fileID: 0}
     billboardMethod: 0
     quadLineThickness: 0.1
     quadLineAlignment: 1

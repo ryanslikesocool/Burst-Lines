@@ -18,8 +18,6 @@ namespace ifelse.Shapes
 
         public override JobHandle PreTransformJobs(JobHandle inputDependencies)
         {
-            closeShape = math.abs(angleA - angleB) % 360 == 0;
-
             NativeArray<float3> positions = new NativeArray<float3>(segments + 1, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             CalculateSegmentsJob calculateSegmentsJob = new CalculateSegmentsJob
             {
