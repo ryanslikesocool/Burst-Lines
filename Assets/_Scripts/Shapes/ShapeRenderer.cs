@@ -60,7 +60,7 @@ namespace ifelse.Shapes
                 case RenderMode.Immediate:
                     RenderImmediate();
                     break;
-                case RenderMode.Cached:
+                case RenderMode.Retained:
                     RenderCached();
                     break;
             }

@@ -12,7 +12,7 @@ namespace ifelse.Shapes
     public enum RenderMode
     {
         Immediate,
-        Cached
+        Retained
     }
 
     public enum BillboardMethod
