@@ -32,7 +32,7 @@ namespace ifelse.Shapes
         {
             if (mesh != null)
             {
-                UnityEngine.GameObject.Destroy(mesh);
+                UnityEngine.GameObject.DestroyImmediate(mesh);
             }
 
             switch (rendererType)

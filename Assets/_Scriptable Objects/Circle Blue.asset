@@ -22,8 +22,8 @@ MonoBehaviour:
       rgba: 4294932992
     mesh: {fileID: 0}
     billboardMethod: 0
-    quadLineThickness: 0.025
-    quadLineAlignment: 1
+    quadLineThickness: 0.5
+    quadLineAlignment: 0
     closeShape: 0
     points:
     - {x: 1, y: 0, z: 0}

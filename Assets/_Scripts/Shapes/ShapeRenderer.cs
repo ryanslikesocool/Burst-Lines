@@ -32,7 +32,11 @@ namespace ifelse.Shapes
         private void OnRenderObject()
         {
 #if UNITY_EDITOR
-            if (!EditorApplication.isPlaying && !renderInEditMode) { return; }
+            if (!EditorApplication.isPlaying && !renderInEditMode)
+            {
+                ClearMeshRenderers();
+                return;
+            }
 #endif
             if (shapes == null || shapes.Length == 0) { return; }
 
@@ -58,11 +62,24 @@ namespace ifelse.Shapes
             switch (renderMode)
             {
                 case RenderMode.Immediate:
+                    ClearMeshRenderers();
                     RenderImmediate();
                     break;
                 case RenderMode.Retained:
                     RenderCached();
                     break;
+            }
+        }
+
+        private void ClearMeshRenderers()
+        {
+            if (shapeRendererLink.Count > 0)
+            {
+                foreach (MeshFilter filter in shapeRendererLink.Values)
+                {
+                    DestroyImmediate(filter.gameObject);
+                }
+                shapeRendererLink.Clear();
             }
         }
 
@@ -83,15 +100,6 @@ namespace ifelse.Shapes
             }
 
             GL.PopMatrix();
-
-            if (shapeRendererLink.Count > 0)
-            {
-                foreach (MeshFilter filter in shapeRendererLink.Values)
-                {
-                    Destroy(filter.gameObject);
-                }
-                shapeRendererLink.Clear();
-            }
         }
 
         private void RenderCached()
