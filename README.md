@@ -18,6 +18,7 @@ All of the dependencies can be found in the Unity Package Manager
 - Burst
 - Mathematics
 - Collections
+
 Installing the Jobs package should immediately install the other packages as dependencies
 
 ## Usage
