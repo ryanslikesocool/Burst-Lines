@@ -47,11 +47,9 @@ namespace ifelse.Shapes
 
         public override void RenderPixelLine()
         {
-            if ((closeShape && pointsToRender.Length < 3) || (!closeShape && pointsToRender.Length < 2)) { return; }
+            if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return; }
 
-            GL.Begin(GL.LINE_STRIP);
-
-            MatchColorLength(points.Length, pointsToRender.Length);
+            GL.Begin(GL.LINES);
 
             for (int i = 0; i < pointsToRender.Length; i++)
             {
@@ -59,16 +57,12 @@ namespace ifelse.Shapes
                 GL.Vertex(pointsToRender[i]);
             }
 
-            if (closeShape) { GL.Vertex(pointsToRender[0]); }
-
             GL.End();
         }
 
         public override void RenderQuadLine()
         {
             GL.Begin(GL.QUADS);
-
-            MatchColorLength(points.Length, pointsToRender.Length);
 
             for (int i = 0; i < pointsToRender.Length; i++)
             {
@@ -81,6 +75,8 @@ namespace ifelse.Shapes
 
         public override void CachePixelLine()
         {
+            if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return; }
+
             if (Mesh == null)
             {
                 Mesh = new Mesh();
@@ -88,16 +84,14 @@ namespace ifelse.Shapes
             }
             Mesh.Clear();
 
-            int[] indices = new int[points.Length];
+            int[] indices = new int[pointsToRender.Length];
             for (int i = 0; i < indices.Length; i++)
             {
                 indices[i] = i;
             }
 
-            MatchColorLength(points.Length, indices.Length);
-
-            Mesh.SetVertices(points);
-            Mesh.SetIndices(indices, MeshTopology.LineStrip, 0);
+            Mesh.SetVertices(pointsToRender);
+            Mesh.SetIndices(indices, MeshTopology.Lines, 0);
             Mesh.SetColors(vertexColors);
         }
 
@@ -116,8 +110,6 @@ namespace ifelse.Shapes
                 indices[i] = i;
             }
 
-            MatchColorLength(points.Length, indices.Length);
-
             Mesh.SetVertices(pointsToRender);
             Mesh.SetIndices(indices, MeshTopology.Quads, 0);
             Mesh.SetColors(vertexColors);
@@ -130,15 +122,15 @@ namespace ifelse.Shapes
 
             CalculateTransformJob calculateTransformJob = new CalculateTransformJob
             {
-                Translation = Position,
+                Translation = position,
                 Rotation = Rotation,
-                Scale = Scale,
+                Scale = scale,
                 Positions = positions,
             };
             inputDependencies = calculateTransformJob.Schedule(points.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
-            PointsToRender = Extensions.ToArray(ref positions);
+            pointsToRender = Extensions.ToArray(ref positions);
 
             nativePoints.Dispose();
 
@@ -156,24 +148,26 @@ namespace ifelse.Shapes
 
             public void Execute(int index)
             {
-                Positions[index] = math.rotate(Rotation, Positions[index]);
                 Positions[index] *= Scale;
+                Positions[index] = math.rotate(Rotation, Positions[index]);
                 Positions[index] += Translation;
             }
         }
 
-        public override JobHandle CalculateQuads(JobHandle inputDependencies)
+        public override JobHandle CalculateVertices(JobHandle inputDependencies)
         {
-            if ((closeShape && pointsToRender.Length < 3) || (!closeShape && pointsToRender.Length < 2)) { return inputDependencies; }
+            if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return inputDependencies; }
 
-            int pointCount = pointsToRender.Length - (Extensions.Approximately(pointsToRender[0], pointsToRender[pointsToRender.Length - 1]) ? 1 : 0);
+            int pointCount = points.Length - (Extensions.Approximately(points[0], pointsToRender[points.Length - 1]) ? 1 : 0);
 
-            NativeArray<Vector3> nativePoints = new NativeArray<Vector3>(pointsToRender, Allocator.TempJob);
+            NativeArray<Vector3> nativePoints = new NativeArray<Vector3>(points, Allocator.TempJob);
             NativeArray<float3> positionsIn = nativePoints.Reinterpret<float3>();
 
-            NativeArray<float3> quadPositions = new NativeArray<float3>(positionsIn.Length * 4, Allocator.TempJob);
-            CalculateQuadsJob calculateQuadsJob = new CalculateQuadsJob
+            int vertexCount = positionsIn.Length * (rendererType == RendererType.PixelLine ? 2 : 4);
+            NativeArray<float3> vertexPositions = new NativeArray<float3>(vertexCount, Allocator.TempJob);
+            CalculateVerticesJob calculateVerticesJob = new CalculateVerticesJob
             {
+                RendererType = rendererType,
                 Epsilon = EPSILON,
                 Right3 = new float3(1, 0, 0),
                 QuaterTurn = quaternion.Euler(0, 0, math.PI * 0.5f),
@@ -182,28 +176,189 @@ namespace ifelse.Shapes
                 BillboardMethod = BillboardMethod,
                 LineAlignment = QuadLineAlignment,
                 Points = positionsIn,
-                QuadPositions = quadPositions,
+                VertexPositions = vertexPositions,
                 CapA = CapA,
                 CapB = CapB
             };
-            inputDependencies = calculateQuadsJob.Schedule(positionsIn.Length, 64, inputDependencies);
+            inputDependencies = calculateVerticesJob.Schedule(positionsIn.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
             if (!closeShape)
             {
-                Extensions.RemoveQuadAtIndex(ref quadPositions, pointsToRender.Length - 1);
+                if (rendererType == RendererType.QuadLine)
+                {
+                    Extensions.RemoveQuadAtIndex(ref vertexPositions, pointsToRender.Length - 1);
+                }
+                else
+                {
+                    Extensions.RemoveLineAtIndex(ref vertexPositions, pointsToRender.Length - 1);
+                }
             }
 
-            PointsToRender = Extensions.ToArray(ref quadPositions);
+            pointsToRender = Extensions.ToArray(ref vertexPositions);
 
             positionsIn.Dispose();
-            quadPositions.Dispose();
+            vertexPositions.Dispose();
             return inputDependencies;
         }
 
-        [BurstCompile]
-        private struct CalculateQuadsJob : IJobParallelFor
+        public void CenterPointsTo(CenterMode mode)
         {
+            Vector3 center = Vector3.zero;
+            switch (mode)
+            {
+                case CenterMode.Bounds:
+                    Vector3 min = Vector3.one * Mathf.Infinity;
+                    Vector3 max = Vector3.one * Mathf.NegativeInfinity;
+                    foreach (Vector3 point in points)
+                    {
+                        min = Vector3.Min(min, point);
+                        max = Vector3.Max(max, point);
+                    }
+                    center = min + (max - min) * 0.5f;
+                    break;
+                case CenterMode.Average:
+                    center = Vector3.zero;
+                    foreach (Vector3 point in points)
+                    {
+                        center += point;
+                    }
+                    center /= points.Length;
+                    break;
+            }
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                points[i] -= center;
+            }
+        }
+
+        public override void MatchColorLength()
+        {
+            if (colors == null || colors.Length == 0) { colors = new Color32[] { Color }; }
+
+            int pointLength = points.Length;
+            int vertexCount = pointsToRender.Length;
+
+            switch (colorMode)
+            {
+                case ColorMode.Solid:
+                    colors = new Color32[vertexCount];
+                    for (int i = 0; i < vertexCount; i++)
+                    {
+                        colors[i] = color;
+                    }
+                    vertexColors = colors;
+                    break;
+                case ColorMode.PerPoint:
+                    if (colors.Length != pointLength)
+                    {
+                        Color32[] pointColors = new Color32[pointLength];
+                        if (colors.Length < pointLength)
+                        {
+                            for (int i = 0; i < colors.Length; i++)
+                            {
+                                pointColors[i] = colors[i];
+                            }
+                            for (int i = colors.Length; i < pointLength; i++)
+                            {
+                                pointColors[i] = colors[colors.Length - 1];
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < pointLength; i++)
+                            {
+                                pointColors[i] = colors[i];
+                            }
+                        }
+                        colors = pointColors;
+                    }
+
+                    vertexColors = new Color32[vertexCount];
+                    if (rendererType == RendererType.QuadLine)
+                    {
+                        for (int i = 0; i < colors.Length; i++)
+                        {
+                            int vIndex = i * 4;
+                            if (vIndex >= vertexColors.Length) { break; }
+                            vertexColors[vIndex + 0] = colors[i];
+                            vertexColors[vIndex + 1] = colors[i];
+                            vertexColors[vIndex + 2] = colors[i];
+                            vertexColors[vIndex + 3] = colors[i];
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < colors.Length; i++)
+                        {
+                            int vIndex = i * 2;
+                            if (vIndex >= vertexColors.Length) { break; }
+                            vertexColors[vIndex + 0] = colors[i];
+                            vertexColors[vIndex + 1] = colors[i];
+                        }
+                    }
+                    break;
+                case ColorMode.PerVertex:
+                    if (colors.Length != vertexColors.Length)
+                    {
+                        Color32[] localVertexColors = new Color32[vertexCount];
+                        if (colors.Length < vertexCount)
+                        {
+                            for (int i = 0; i < colors.Length; i++)
+                            {
+                                localVertexColors[i] = colors[i];
+                            }
+                            for (int i = colors.Length; i < vertexCount; i++)
+                            {
+                                localVertexColors[i] = colors[colors.Length - 1];
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < vertexCount; i++)
+                            {
+                                localVertexColors[i] = colors[i];
+                            }
+                        }
+                        colors = localVertexColors;
+                    }
+
+                    vertexColors = colors;
+                    break;
+            }
+
+            if ((colorMode == ColorMode.PerVertex || colorMode == ColorMode.PerPoint)
+             && blendMode == BlendMode.Gradient)
+            {
+                int offset = rendererType == RendererType.PixelLine ? 1 : 2;
+                Color32[] remappedColors = new Color32[vertexColors.Length];
+                for (int i = 0; i < vertexColors.Length; i++)
+                {
+                    remappedColors[i] = vertexColors[(i + offset).Wrap(0, vertexColors.Length, 1)];
+                }
+
+                if (colorMode == ColorMode.PerPoint && !closeShape)
+                {
+                    if (rendererType == RendererType.PixelLine)
+                    {
+                        remappedColors[remappedColors.Length - 1] = colors[colors.Length - 1];
+                    }
+                    else
+                    {
+                        remappedColors[remappedColors.Length - 1] = colors[colors.Length - 1];
+                        remappedColors[remappedColors.Length - 2] = colors[colors.Length - 1];
+                    }
+                }
+
+                vertexColors = remappedColors;
+            }
+        }
+
+        [BurstCompile]
+        private struct CalculateVerticesJob : IJobParallelFor
+        {
+            [ReadOnly] public RendererType RendererType;
             [ReadOnly] public float Epsilon;
             [ReadOnly] public float3 Right3;
             [ReadOnly] public quaternion QuaterTurn;
@@ -214,20 +369,27 @@ namespace ifelse.Shapes
             [ReadOnly] public CapType CapA;
             [ReadOnly] public CapType CapB;
 
-            [NativeDisableContainerSafetyRestriction] [ReadOnly] public NativeArray<float3> Points;
+            [ReadOnly] public NativeArray<float3> Points;
 
-            [NativeDisableContainerSafetyRestriction] [WriteOnly] public NativeArray<float3> QuadPositions;
+            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> VertexPositions;
 
             public void Execute(int index)
             {
-                switch (BillboardMethod)
+                if (RendererType == RendererType.QuadLine)
                 {
-                    default:
-                        Debug.LogWarning("This billboard method isn't implemented yet!");
-                        break;
-                    case BillboardMethod.Undefined:
-                        CalculateUndefined(index);
-                        break;
+                    switch (BillboardMethod)
+                    {
+                        default:
+                            Debug.LogWarning($"This billboard method ({BillboardMethod}) isn't implemented yet.");
+                            break;
+                        case BillboardMethod.Undefined:
+                            CalculateUndefined(index);
+                            break;
+                    }
+                }
+                else
+                {
+                    CalculatePixelLine(index);
                 }
             }
 
@@ -285,41 +447,21 @@ namespace ifelse.Shapes
 
                 int quadStart = index * 4;
 
-                QuadPositions[quadStart + 0] = b - directionABC * q03Mult;
-                QuadPositions[quadStart + 1] = b + directionABC * q12Mult;
-                QuadPositions[quadStart + 2] = c + directionBCD * q12Mult;
-                QuadPositions[quadStart + 3] = c - directionBCD * q03Mult;
-            }
-        }
-
-        public void CenterPointsTo(CenterMode mode)
-        {
-            Vector3 center = Vector3.zero;
-            switch (mode)
-            {
-                case CenterMode.Bounds:
-                    Vector3 min = Vector3.one * Mathf.Infinity;
-                    Vector3 max = Vector3.one * Mathf.NegativeInfinity;
-                    foreach (Vector3 point in points)
-                    {
-                        min = Vector3.Min(min, point);
-                        max = Vector3.Max(max, point);
-                    }
-                    center = min + (max - min) * 0.5f;
-                    break;
-                case CenterMode.Average:
-                    center = Vector3.zero;
-                    foreach (Vector3 point in points)
-                    {
-                        center += point;
-                    }
-                    center /= points.Length;
-                    break;
+                VertexPositions[quadStart + 0] = b - directionABC * q03Mult;
+                VertexPositions[quadStart + 1] = b + directionABC * q12Mult;
+                VertexPositions[quadStart + 2] = c + directionBCD * q12Mult;
+                VertexPositions[quadStart + 3] = c - directionBCD * q03Mult;
             }
 
-            for (int i = 0; i < points.Length; i++)
+            private void CalculatePixelLine(int index)
             {
-                points[i] -= center;
+                float3 a = Points[index];
+                float3 b = Points[(index + 1).Wrap(0, Points.Length, 1)];
+
+                int lineStart = index * 2;
+
+                VertexPositions[lineStart] = a;
+                VertexPositions[lineStart + 1] = b;
             }
         }
     }

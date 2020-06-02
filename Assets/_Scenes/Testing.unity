@@ -276,6 +276,8 @@ MonoBehaviour:
     type: 2}
   shapes:
   - {fileID: 11400000, guid: ef43cb0c64f17482987f74064b2bacaf, type: 2}
+  - {fileID: 11400000, guid: 94bc479f87db14558ba70912aab5382b, type: 2}
+  - {fileID: 11400000, guid: 4616212e56f114440ae8f569bd170522, type: 2}
 --- !u!4 &1934909778
 Transform:
   m_ObjectHideFlags: 0

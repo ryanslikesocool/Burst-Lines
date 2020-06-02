@@ -94,24 +94,44 @@ namespace ifelse.Shapes
             quads.Dispose();
         }
 
-        public static void RemoveQuadAtIndex(ref NativeArray<float3> quadArray, int quadIndex)
+        public static void RemoveQuadAtIndex(ref NativeArray<float3> vertexArray, int quadIndex)
         {
-            if (quadArray.Length % 4 != 0) { return; }
+            if (vertexArray.Length % 4 != 0) { return; }
 
-            List<float3> quads = new List<float3>(quadArray);
-            for (int i = quadArray.Length - 1; i > -1; i -= 4)
+            List<float3> vertices = new List<float3>(vertexArray);
+            for (int i = vertexArray.Length - 1; i > -1; i -= 4)
             {
                 if ((i - 3) / 4 == quadIndex)
                 {
-                    quads.RemoveAt(i);
-                    quads.RemoveAt(i - 1);
-                    quads.RemoveAt(i - 2);
-                    quads.RemoveAt(i - 3);
+                    vertices.RemoveAt(i - 0);
+                    vertices.RemoveAt(i - 1);
+                    vertices.RemoveAt(i - 2);
+                    vertices.RemoveAt(i - 3);
+                    break;
                 }
             }
 
-            quadArray.Dispose();
-            quadArray = new NativeArray<float3>(quads.ToArray(), Allocator.TempJob);
+            vertexArray.Dispose();
+            vertexArray = new NativeArray<float3>(vertices.ToArray(), Allocator.TempJob);
+        }
+
+        public static void RemoveLineAtIndex(ref NativeArray<float3> vertexArray, int lineIndex)
+        {
+            if (vertexArray.Length % 2 != 0) { return; }
+
+            List<float3> vertices = new List<float3>(vertexArray);
+            for (int i = vertexArray.Length - 1; i > -1; i -= 2)
+            {
+                if ((i - 1) / 2 == lineIndex)
+                {
+                    vertices.RemoveAt(i - 0);
+                    vertices.RemoveAt(i - 1);
+                    break;
+                }
+            }
+
+            vertexArray.Dispose();
+            vertexArray = new NativeArray<float3>(vertices.ToArray(), Allocator.TempJob);
         }
 
         public static float ClampOutOfRange(this float input, float bigNumber, float max)

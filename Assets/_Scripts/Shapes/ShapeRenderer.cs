@@ -23,6 +23,21 @@ namespace ifelse.Shapes
 
         private Dictionary<ShapeSO, MeshFilter> shapeRendererLink = new Dictionary<ShapeSO, MeshFilter>();
 
+        private void OnEnable()
+        {
+            foreach (ShapeSO shapeSO in shapes)
+            {
+                if (shapeSO == null) { continue; }
+                shapeSO.GetProps(out Shape shape);
+                shape.MarkDirty();
+            }
+        }
+
+        private void OnDisable()
+        {
+            ClearMeshRenderers();
+        }
+
         private void OnRenderObject()
         {
 #if UNITY_EDITOR
@@ -41,8 +56,7 @@ namespace ifelse.Shapes
             {
                 if (shapeSO == null) { continue; }
 
-                Shape shape;
-                shapeSO.GetProps(out shape);
+                shapeSO.GetProps(out Shape shape);
 
                 if (!shape.IsDirty) { continue; }
 
@@ -50,10 +64,9 @@ namespace ifelse.Shapes
                 inputDependencies = shape.CalculateTransform(inputDependencies);
                 inputDependencies = shape.PostTransformJobs(inputDependencies);
 
-                if (shape.RendererType == RendererType.QuadLine)
-                {
-                    inputDependencies = shape.CalculateQuads(inputDependencies);
-                }
+                inputDependencies = shape.CalculateVertices(inputDependencies);
+
+                shape.MatchColorLength();
 
                 shape.ClearDirty();
             }
@@ -93,8 +106,7 @@ namespace ifelse.Shapes
             {
                 if (shapeSO == null) { continue; }
 
-                Shape shape;
-                shapeSO.GetProps(out shape);
+                shapeSO.GetProps(out Shape shape);
 
                 shape.Render();
             }
@@ -110,8 +122,7 @@ namespace ifelse.Shapes
             {
                 if (shapeSO == null) { continue; }
 
-                Shape shape;
-                shapeSO.GetProps(out shape);
+                shapeSO.GetProps(out Shape shape);
 
                 shape.Cache();
 
