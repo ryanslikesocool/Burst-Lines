@@ -3,13 +3,15 @@
 ###### A small line rendering tool built around Unity's Job system
 
 ## Features
-- Immediate mode and retained mode mesh rendering (retained need improvements)
-- Super speedy job-based mesh creation
-- Store shapes data in scriptable objects for easy reuse
+- Immediate mode and retained mode mesh rendering
+- Super speedy job-based mesh creation (only when data changes, so no unnecessary calculation)
+- Stored in scriptable objects for easy reuse
 - Pixel width or quad-based shapes
-- URP compatible (not tested on HDRP but it might work)
+- URP compatible (not tested on HDRP or classic but it might work)
 - Arcs
-- Miter angles for non-arc shapes
+- Miter angles (nice corners)
+- Color modes (fill, per point, per vertex)
+- Color blending modes (step, gradient)
 
 ## Dependencies
 #### This package is based around Unity's Jobs and Burst compiler systems.  Because of this, there are a few dependencies that are required.
@@ -22,13 +24,15 @@ All of the dependencies can be found in the Unity Package Manager
 Installing the Jobs package should immediately install the other packages as dependencies
 
 ## Usage
-- Drop the Shapes folder (root/Assets/_Scripts/Shapes) into your Unity project's Plugins folder
+- Drop the Shapes folder (`Assets/_Scripts/Shapes`) into your Unity project's Plugins folder
 - Add a Shape Renderer component to an object
-- Create a shape Scriptable Object (Project panel > right click > Create > ifelse > Shapes)
-- Set Scriptable Object Properties
-- Attach Scriptable Object to Shape Renderer
+- Create a shape Scriptable Object (`Project panel`>`right click`>`Create`>`ifelse`>`Shapes)
+- Set the Shape Renderer and Scriptable Object properties
+- Attach the Scriptable Object to the Shape Renderer
 - :sparkles: Magic :sparkles:
 
-There is also a sample scene (root/Assets/_Scenes/Testing) with a basic setup to help explain
+There is also a sample scene (`Assets/_Scenes/Samples`) with a basic setup to help explain
 
 ![Shapes sample image](images/ShapesSample.png) 
+
+Attribution appreciated, but not necessary :blush:
