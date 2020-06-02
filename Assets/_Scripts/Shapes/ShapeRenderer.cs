@@ -48,14 +48,18 @@ namespace ifelse.Shapes
                 Shape shape;
                 shapeSO.GetProps(out shape);
 
+                if (!shape.IsDirty) { continue; }
+
                 inputDependencies = shape.PreTransformJobs(inputDependencies);
                 inputDependencies = shape.CalculateTransform(inputDependencies);
                 inputDependencies = shape.PostTransformJobs(inputDependencies);
 
-                if (shape.rendererType == RendererType.QuadLine)
+                if (shape.RendererType == RendererType.QuadLine)
                 {
                     inputDependencies = shape.CalculateQuads(inputDependencies);
                 }
+
+                shape.ClearDirty();
             }
             inputDependencies.Complete();
 
@@ -123,7 +127,7 @@ namespace ifelse.Shapes
                 if (shapeRendererLink[shapeSO] == null)
                 {
                     shapeRendererLink[shapeSO] = Instantiate(cachedRenderPrefab);
-                    shapeRendererLink[shapeSO].sharedMesh = shape.mesh;
+                    shapeRendererLink[shapeSO].sharedMesh = shape.Mesh;
                 }
             }
         }

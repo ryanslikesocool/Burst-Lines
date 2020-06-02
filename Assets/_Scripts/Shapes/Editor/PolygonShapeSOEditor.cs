@@ -34,6 +34,8 @@ namespace ifelse.Shapes
         {
             serializedObject.Update();
 
+            EditorGUI.BeginChangeCheck();
+
             base.OnInspectorGUI();
 
             bool hideCap = (RendererType)rendererType.enumValueIndex == RendererType.PixelLine;
@@ -41,6 +43,11 @@ namespace ifelse.Shapes
 
             ShapeEditors.PolygonShapeEditor(closeShape, points);
             ShapeEditors.CenterPolygonEditor(polygonShape);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                polygonShape.MarkDirty();
+            }
 
             serializedObject.ApplyModifiedProperties();
         }

@@ -12,9 +12,48 @@ namespace ifelse.Shapes
     public class ArcShape : PolygonShape
     {
         public float angleA = -180;
+        public float AngleA
+        {
+            get { return angleA; }
+            set
+            {
+                angleA = value;
+                MarkDirty();
+            }
+        }
+
         public float angleB = 180;
+        public float AngleB
+        {
+            get { return angleB; }
+            set
+            {
+                angleB = value;
+                MarkDirty();
+            }
+        }
+
         public float radius = 1;
+        public float Radius
+        {
+            get { return radius; }
+            set
+            {
+                radius = value;
+                MarkDirty();
+            }
+        }
+
         public int segments = 32;
+        public int Segments
+        {
+            get { return segments; }
+            set
+            {
+                segments = value;
+                MarkDirty();
+            }
+        }
 
         public override JobHandle PreTransformJobs(JobHandle inputDependencies)
         {
@@ -31,7 +70,7 @@ namespace ifelse.Shapes
             inputDependencies = calculateSegmentsJob.Schedule(positions.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
-            points = Extensions.ToArray(ref positions);
+            Points = Extensions.ToArray(ref positions);
 
             positions.Dispose();
 

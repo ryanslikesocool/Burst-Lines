@@ -121,7 +121,7 @@ namespace ifelse.Shapes
 
         public static void MoveHandle(ShapeSO scriptableObject, Shape shape)
         {
-            Vector3 position = shape.position;
+            Vector3 position = shape.Position;
 
             EditorGUI.BeginChangeCheck();
 
@@ -129,7 +129,7 @@ namespace ifelse.Shapes
 
             if (EditorGUI.EndChangeCheck())
             {
-                shape.position = position;
+                shape.Position = position;
                 Undo.RegisterCompleteObjectUndo(scriptableObject, "Moved shape");
             }
         }
@@ -140,7 +140,7 @@ namespace ifelse.Shapes
 
             EditorGUI.BeginChangeCheck();
 
-            rotation = Handles.RotationHandle(rotation, shape.position);
+            rotation = Handles.RotationHandle(rotation, shape.Position);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -151,25 +151,25 @@ namespace ifelse.Shapes
 
         public static void ScaleHandle(ShapeSO scriptableObject, Shape shape)
         {
-            Vector3 scale = shape.scale;
-            float magnitude = shape.scale.sqrMagnitude;
+            Vector3 scale = shape.Scale;
+            float magnitude = shape.Scale.sqrMagnitude;
 
             EditorGUI.BeginChangeCheck();
 
-            scale = Handles.ScaleHandle(scale, shape.position, shape.Rotation, magnitude);
+            scale = Handles.ScaleHandle(scale, shape.Position, shape.Rotation, magnitude);
 
             if (EditorGUI.EndChangeCheck())
             {
-                shape.scale = scale;
+                shape.Scale = scale;
                 Undo.RegisterCompleteObjectUndo(scriptableObject, "Scaled shape");
             }
         }
 
         public static void TransformHandle(ShapeSO scriptableObject, Shape shape)
         {
-            Vector3 position = shape.position;
+            Vector3 position = shape.Position;
             Quaternion rotation = shape.Rotation;
-            Vector3 scale = shape.scale;
+            Vector3 scale = shape.Scale;
 
             EditorGUI.BeginChangeCheck();
 
@@ -177,9 +177,9 @@ namespace ifelse.Shapes
 
             if (EditorGUI.EndChangeCheck())
             {
-                shape.position = position;
+                shape.Position = position;
                 shape.Rotation = rotation;
-                shape.scale = scale;
+                shape.Scale = scale;
                 Undo.RegisterCompleteObjectUndo(scriptableObject, "Transformed shape");
             }
         }

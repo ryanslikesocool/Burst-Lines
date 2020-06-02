@@ -13,16 +13,44 @@ namespace ifelse.Shapes
     public class PolygonShape : Shape
     {
         public bool closeShape = true;
-        public Vector3[] points = null;
+        public bool CloseShape
+        {
+            get { return closeShape; }
+            set
+            {
+                closeShape = value;
+                MarkDirty();
+            }
+        }
 
-        private Vector3[] pointsToRender;
+        public Vector3[] points = null;
+        public Vector3[] Points
+        {
+            get { return points; }
+            set
+            {
+                points = value;
+                MarkDirty();
+            }
+        }
+
+        public Vector3[] pointsToRender;
+        public Vector3[] PointsToRender
+        {
+            get { return pointsToRender; }
+            set
+            {
+                pointsToRender = value;
+                MarkDirty();
+            }
+        }
 
         public override void RenderPixelLine()
         {
             if ((closeShape && pointsToRender.Length < 3) || (!closeShape && pointsToRender.Length < 2)) { return; }
 
             GL.Begin(GL.LINE_STRIP);
-            GL.Color(color);
+            GL.Color(Color);
 
             for (int i = 0; i < pointsToRender.Length; i++)
             {
@@ -32,14 +60,12 @@ namespace ifelse.Shapes
             if (closeShape) { GL.Vertex(pointsToRender[0]); }
 
             GL.End();
-
-            pointsToRender = null;
         }
 
         public override void RenderQuadLine()
         {
             GL.Begin(GL.QUADS);
-            GL.Color(color);
+            GL.Color(Color);
 
             for (int i = 0; i < pointsToRender.Length; i++)
             {
@@ -47,52 +73,50 @@ namespace ifelse.Shapes
             }
 
             GL.End();
-
-            pointsToRender = null;
         }
 
         public override void CachePixelLine()
         {
-            if (mesh == null)
+            if (Mesh == null)
             {
-                mesh = new Mesh();
-                mesh.name = $"Shape {this.GetHashCode()} Line";
+                Mesh = new Mesh();
+                Mesh.name = $"Shape {this.GetHashCode()} Line";
             }
-            mesh.Clear();
+            Mesh.Clear();
 
             int[] indices = new int[points.Length];
             Color32[] colors = new Color32[pointsToRender.Length];
             for (int i = 0; i < indices.Length; i++)
             {
                 indices[i] = i;
-                colors[i] = color;
+                colors[i] = Color;
             }
 
-            mesh.SetVertices(points);
-            mesh.SetIndices(indices, MeshTopology.LineStrip, 0);
-            mesh.SetColors(colors);
+            Mesh.SetVertices(points);
+            Mesh.SetIndices(indices, MeshTopology.LineStrip, 0);
+            Mesh.SetColors(colors);
         }
 
         public override void CacheQuadLine()
         {
-            if (mesh == null)
+            if (Mesh == null)
             {
-                mesh = new Mesh();
-                mesh.name = $"Shape {this.GetHashCode()} Quad";
+                Mesh = new Mesh();
+                Mesh.name = $"Shape {this.GetHashCode()} Quad";
             }
-            mesh.Clear();
+            Mesh.Clear();
 
             int[] indices = new int[pointsToRender.Length];
             Color32[] colors = new Color32[pointsToRender.Length];
             for (int i = 0; i < indices.Length; i++)
             {
                 indices[i] = i;
-                colors[i] = color;
+                colors[i] = Color;
             }
 
-            mesh.SetVertices(pointsToRender);
-            mesh.SetIndices(indices, MeshTopology.Quads, 0);
-            mesh.SetColors(colors);
+            Mesh.SetVertices(pointsToRender);
+            Mesh.SetIndices(indices, MeshTopology.Quads, 0);
+            Mesh.SetColors(colors);
         }
 
         public override JobHandle CalculateTransform(JobHandle inputDependencies)
@@ -102,15 +126,15 @@ namespace ifelse.Shapes
 
             CalculateTransformJob calculateTransformJob = new CalculateTransformJob
             {
-                Translation = position,
+                Translation = Position,
                 Rotation = Rotation,
-                Scale = scale,
+                Scale = Scale,
                 Positions = positions,
             };
             inputDependencies = calculateTransformJob.Schedule(points.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
-            pointsToRender = Extensions.ToArray(ref positions);
+            PointsToRender = Extensions.ToArray(ref positions);
 
             nativePoints.Dispose();
 
@@ -144,19 +168,19 @@ namespace ifelse.Shapes
             NativeArray<float3> positionsIn = nativePoints.Reinterpret<float3>();
 
             NativeArray<float3> quadPositions = new NativeArray<float3>(positionsIn.Length * 4, Allocator.TempJob);
-            CalculateQuadsJobv2 calculateQuadsJob = new CalculateQuadsJobv2
+            CalculateQuadsJob calculateQuadsJob = new CalculateQuadsJob
             {
                 Epsilon = EPSILON,
                 Right3 = new float3(1, 0, 0),
                 QuaterTurn = quaternion.Euler(0, 0, math.PI * 0.5f),
                 CloseShape = closeShape,
-                Thickness = quadLineThickness,
-                BillboardMethod = billboardMethod,
-                LineAlignment = quadLineAlignment,
+                Thickness = QuadLineThickness,
+                BillboardMethod = BillboardMethod,
+                LineAlignment = QuadLineAlignment,
                 Points = positionsIn,
                 QuadPositions = quadPositions,
-                CapA = capA,
-                CapB = capB
+                CapA = CapA,
+                CapB = CapB
             };
             inputDependencies = calculateQuadsJob.Schedule(positionsIn.Length, 64, inputDependencies);
             inputDependencies.Complete();
@@ -166,7 +190,7 @@ namespace ifelse.Shapes
                 Extensions.RemoveQuadAtIndex(ref quadPositions, pointsToRender.Length - 1);
             }
 
-            pointsToRender = Extensions.ToArray(ref quadPositions);
+            PointsToRender = Extensions.ToArray(ref quadPositions);
 
             positionsIn.Dispose();
             quadPositions.Dispose();
@@ -174,7 +198,7 @@ namespace ifelse.Shapes
         }
 
         [BurstCompile]
-        private struct CalculateQuadsJobv2 : IJobParallelFor
+        private struct CalculateQuadsJob : IJobParallelFor
         {
             [ReadOnly] public float Epsilon;
             [ReadOnly] public float3 Right3;
@@ -186,11 +210,9 @@ namespace ifelse.Shapes
             [ReadOnly] public CapType CapA;
             [ReadOnly] public CapType CapB;
 
-            [NativeDisableContainerSafetyRestriction]
-            [ReadOnly] public NativeArray<float3> Points;
+            [NativeDisableContainerSafetyRestriction] [ReadOnly] public NativeArray<float3> Points;
 
-            [NativeDisableContainerSafetyRestriction]
-            [WriteOnly] public NativeArray<float3> QuadPositions;
+            [NativeDisableContainerSafetyRestriction] [WriteOnly] public NativeArray<float3> QuadPositions;
 
             public void Execute(int index)
             {
@@ -228,6 +250,8 @@ namespace ifelse.Shapes
                 directionABC *= directionMultiplierABC;
                 directionBCD *= directionMultiplierBCD;
 
+                //These are badly named
+                //They're actually meant to be read as 0, 3 and 1, 2 for the corresponding indices
                 float q03Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 1;
                 float q12Mult = LineAlignment == QuadLineAlignment.Center ? 0.5f : 0;
 

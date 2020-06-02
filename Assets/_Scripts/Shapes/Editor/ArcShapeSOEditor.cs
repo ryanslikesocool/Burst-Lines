@@ -38,9 +38,16 @@ namespace ifelse.Shapes
         {
             serializedObject.Update();
 
+            EditorGUI.BeginChangeCheck();
+
             base.OnInspectorGUI();
 
             ShapeEditors.ArcShapeEditor(angleA, angleB, radius, segments);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                arcShape.MarkDirty();
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
