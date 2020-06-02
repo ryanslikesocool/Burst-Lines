@@ -38,7 +38,20 @@ namespace ifelse.Shapes
 
     public enum CenterMode
     {
-        True,
+        Bounds,
         Average
+    }
+
+    public enum ColorMode
+    {
+        Solid,
+        PerPoint,
+        PerVertex
+    }
+
+    public enum BlendMode
+    {
+        Step,
+        Gradient
     }
 }

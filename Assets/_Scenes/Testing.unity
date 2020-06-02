@@ -270,13 +270,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderInEditMode: 1
   renderMode: 0
-  vertexColorMaterial: {fileID: 2100000, guid: 3153b695cc62541df98307bf83dd6ee0, type: 2}
-  shapes:
-  - {fileID: 11400000, guid: 94bc479f87db14558ba70912aab5382b, type: 2}
-  - {fileID: 11400000, guid: 4616212e56f114440ae8f569bd170522, type: 2}
-  - {fileID: 11400000, guid: ef43cb0c64f17482987f74064b2bacaf, type: 2}
-  cachedRenderPrefab: {fileID: 8756113182272112304, guid: 2f6d9887d0a67479280fcbeb3aa33a1e,
+  retainedModePrefab: {fileID: 8756113182272112304, guid: 2f6d9887d0a67479280fcbeb3aa33a1e,
     type: 3}
+  immediateModeMaterial: {fileID: 2100000, guid: 3153b695cc62541df98307bf83dd6ee0,
+    type: 2}
+  shapes:
+  - {fileID: 11400000, guid: ef43cb0c64f17482987f74064b2bacaf, type: 2}
 --- !u!4 &1934909778
 Transform:
   m_ObjectHideFlags: 0

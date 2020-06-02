@@ -65,7 +65,29 @@ namespace ifelse.Shapes
             }
         }
 
-        public Color32 color;
+        public ColorMode colorMode = ColorMode.Solid;
+        public ColorMode ColorMode
+        {
+            get { return colorMode; }
+            set
+            {
+                colorMode = value;
+                MarkDirty();
+            }
+        }
+
+        public BlendMode blendMode = BlendMode.Gradient;
+        public BlendMode BlendMode
+        {
+            get { return blendMode; }
+            set
+            {
+                blendMode = value;
+                MarkDirty();
+            }
+        }
+
+        public Color32 color = new Color32(0, 0, 0, 255);
         public Color32 Color
         {
             get { return color; }
@@ -75,6 +97,19 @@ namespace ifelse.Shapes
                 MarkDirty();
             }
         }
+
+        public Color32[] colors = new Color32[0];
+        public Color32[] Colors
+        {
+            get { return colors; }
+            set
+            {
+                colors = value;
+                MarkDirty();
+            }
+        }
+
+        protected Color32[] vertexColors;
 
         public Mesh mesh;
         public Mesh Mesh
@@ -202,6 +237,97 @@ namespace ifelse.Shapes
                 case RendererType.QuadLine:
                     CacheQuadLine();
                     break;
+            }
+        }
+
+        protected virtual void MatchColorLength(int pointLength, int vertexCount)
+        {
+            if (colors == null || colors.Length == 0) { colors = new Color32[] { Color }; }
+
+            switch (colorMode)
+            {
+                case ColorMode.Solid:
+                    colors = new Color32[vertexCount];
+                    for (int i = 0; i < vertexCount; i++)
+                    {
+                        colors[i] = color;
+                    }
+                    vertexColors = colors;
+                    break;
+                case ColorMode.PerPoint:
+                    if (colors.Length != pointLength)
+                    {
+                        Color32[] pointColors = new Color32[pointLength];
+                        if (colors.Length < pointLength)
+                        {
+                            for (int i = 0; i < colors.Length; i++)
+                            {
+                                pointColors[i] = colors[i];
+                            }
+                            for (int i = colors.Length; i < pointLength; i++)
+                            {
+                                pointColors[i] = colors[colors.Length - 1];
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < pointLength; i++)
+                            {
+                                pointColors[i] = colors[i];
+                            }
+                        }
+                        colors = pointColors;
+                    }
+
+                    vertexColors = new Color32[vertexCount];
+                    for (int i = 0; i < colors.Length; i++)
+                    {
+                        int vIndex = i * 4;
+                        vertexColors[vIndex + 0] = colors[i];
+                        vertexColors[vIndex + 1] = colors[i];
+                        vertexColors[vIndex + 2] = colors[i];
+                        vertexColors[vIndex + 3] = colors[i];
+                    }
+                    break;
+                case ColorMode.PerVertex:
+                    if (colors.Length != vertexColors.Length)
+                    {
+                        Color32[] localVertexColors = new Color32[vertexCount];
+                        if (colors.Length < vertexCount)
+                        {
+                            for (int i = 0; i < colors.Length; i++)
+                            {
+                                localVertexColors[i] = colors[i];
+                            }
+                            for (int i = colors.Length; i < vertexCount; i++)
+                            {
+                                localVertexColors[i] = colors[colors.Length - 1];
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < vertexCount; i++)
+                            {
+                                localVertexColors[i] = colors[i];
+                            }
+                        }
+                        colors = localVertexColors;
+                    }
+
+                    vertexColors = colors;
+                    break;
+            }
+
+            if ((colorMode == ColorMode.PerVertex || colorMode == ColorMode.PerPoint)
+             && blendMode == BlendMode.Gradient)
+            {
+                int offset = rendererType == RendererType.PixelLine ? 1 : 2;
+                Color32[] originalColors = new Color32[vertexColors.Length];
+                for (int i = 0; i < vertexColors.Length; i++)
+                {
+                    originalColors[i] = vertexColors[(i + offset).Wrap(0, vertexColors.Length, 1)];
+                }
+                vertexColors = originalColors;
             }
         }
 

@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10b19fe29beee4f958e922c7aaeca5f3, type: 3}
+  m_Name: Miter Rainbow
+  m_EditorClassIdentifier: 
+  shape:
+    position: {x: 0, y: 0, z: 0}
+    eulerRotation: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    rendererType: 1
+    colorMode: 1
+    blendMode: 1
+    color:
+      serializedVersion: 2
+      rgba: 4278190080
+    colors:
+    - serializedVersion: 2
+      rgba: 4282009087
+    - serializedVersion: 2
+      rgba: 4294073023
+    - serializedVersion: 2
+      rgba: 4294955620
+    - serializedVersion: 2
+      rgba: 4278900479
+    mesh: {fileID: 0}
+    billboardMethod: 0
+    quadLineThickness: 0.25
+    quadLineAlignment: 1
+    capA: 0
+    capDetailA: 1
+    capB: 1
+    capDetailB: 0
+    closeShape: 1
+    points:
+    - {x: 0.5, y: 0.5, z: 0}
+    - {x: 0.5, y: -0.5, z: 0}
+    - {x: -0.5, y: -0.5, z: 0}
+    - {x: -0.5, y: 0.5, z: 0}
+    pointsToRender:
+    - {x: 0.625, y: 0.625, z: 0}
+    - {x: 0.375, y: 0.375, z: 0}
+    - {x: 0.375, y: -0.375, z: 0}
+    - {x: 0.625, y: -0.625, z: 0}
+    - {x: 0.625, y: -0.625, z: 0}
+    - {x: 0.375, y: -0.375, z: 0}
+    - {x: -0.375, y: -0.375, z: 0}
+    - {x: -0.625, y: -0.625, z: 0}
+    - {x: -0.625, y: -0.625, z: 0}
+    - {x: -0.375, y: -0.375, z: 0}
+    - {x: -0.375, y: 0.375, z: 0}
+    - {x: -0.625, y: 0.625, z: 0}
+    - {x: -0.625, y: 0.625, z: 0}
+    - {x: -0.375, y: 0.375, z: 0}
+    - {x: 0.375, y: 0.375, z: 0}
+    - {x: 0.625, y: 0.625, z: 0}

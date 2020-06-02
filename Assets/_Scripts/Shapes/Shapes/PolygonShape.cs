@@ -50,10 +50,12 @@ namespace ifelse.Shapes
             if ((closeShape && pointsToRender.Length < 3) || (!closeShape && pointsToRender.Length < 2)) { return; }
 
             GL.Begin(GL.LINE_STRIP);
-            GL.Color(Color);
+
+            MatchColorLength(points.Length, pointsToRender.Length);
 
             for (int i = 0; i < pointsToRender.Length; i++)
             {
+                GL.Color(vertexColors[i]);
                 GL.Vertex(pointsToRender[i]);
             }
 
@@ -65,10 +67,12 @@ namespace ifelse.Shapes
         public override void RenderQuadLine()
         {
             GL.Begin(GL.QUADS);
-            GL.Color(Color);
+
+            MatchColorLength(points.Length, pointsToRender.Length);
 
             for (int i = 0; i < pointsToRender.Length; i++)
             {
+                GL.Color(vertexColors[i]);
                 GL.Vertex(pointsToRender[i]);
             }
 
@@ -85,16 +89,16 @@ namespace ifelse.Shapes
             Mesh.Clear();
 
             int[] indices = new int[points.Length];
-            Color32[] colors = new Color32[pointsToRender.Length];
             for (int i = 0; i < indices.Length; i++)
             {
                 indices[i] = i;
-                colors[i] = Color;
             }
+
+            MatchColorLength(points.Length, indices.Length);
 
             Mesh.SetVertices(points);
             Mesh.SetIndices(indices, MeshTopology.LineStrip, 0);
-            Mesh.SetColors(colors);
+            Mesh.SetColors(vertexColors);
         }
 
         public override void CacheQuadLine()
@@ -107,16 +111,16 @@ namespace ifelse.Shapes
             Mesh.Clear();
 
             int[] indices = new int[pointsToRender.Length];
-            Color32[] colors = new Color32[pointsToRender.Length];
             for (int i = 0; i < indices.Length; i++)
             {
                 indices[i] = i;
-                colors[i] = Color;
             }
+
+            MatchColorLength(points.Length, indices.Length);
 
             Mesh.SetVertices(pointsToRender);
             Mesh.SetIndices(indices, MeshTopology.Quads, 0);
-            Mesh.SetColors(colors);
+            Mesh.SetColors(vertexColors);
         }
 
         public override JobHandle CalculateTransform(JobHandle inputDependencies)
@@ -293,7 +297,7 @@ namespace ifelse.Shapes
             Vector3 center = Vector3.zero;
             switch (mode)
             {
-                case CenterMode.True:
+                case CenterMode.Bounds:
                     Vector3 min = Vector3.one * Mathf.Infinity;
                     Vector3 max = Vector3.one * Mathf.NegativeInfinity;
                     foreach (Vector3 point in points)

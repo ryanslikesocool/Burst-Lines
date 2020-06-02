@@ -12,21 +12,15 @@ namespace ifelse.Shapes
     public class ShapeRenderer : MonoBehaviour
     {
 #if UNITY_EDITOR
-        [SerializeField]
-        private bool renderInEditMode = true;
+        [SerializeField] private bool renderInEditMode = true;
 #endif
-        [SerializeField]
-        private RenderMode renderMode = RenderMode.Immediate;
+        [SerializeField] private RenderMode renderMode = RenderMode.Immediate;
 
-        [Space]
-        [SerializeField]
-        private Material vertexColorMaterial = null;
-        [SerializeField]
-        private ShapeSO[] shapes = null;
+        [Space] [SerializeField] private MeshFilter retainedModePrefab = null;
+        [SerializeField] private Material immediateModeMaterial = null;
 
-        [Space]
-        [SerializeField]
-        private MeshFilter cachedRenderPrefab = null;
+        [Space] [SerializeField] private ShapeSO[] shapes = null;
+
         private Dictionary<ShapeSO, MeshFilter> shapeRendererLink = new Dictionary<ShapeSO, MeshFilter>();
 
         private void OnRenderObject()
@@ -38,7 +32,9 @@ namespace ifelse.Shapes
                 return;
             }
 #endif
-            if (shapes == null || shapes.Length == 0) { return; }
+            if (shapes == null || shapes.Length == 0
+             || (renderMode == RenderMode.Immediate && immediateModeMaterial == null)
+             || (renderMode == RenderMode.Retained && retainedModePrefab == null)) { return; }
 
             JobHandle inputDependencies = new JobHandle();
             foreach (ShapeSO shapeSO in shapes)
@@ -89,7 +85,7 @@ namespace ifelse.Shapes
 
         private void RenderImmediate()
         {
-            vertexColorMaterial.SetPass(0);
+            immediateModeMaterial.SetPass(0);
             GL.PushMatrix();
             GL.MultMatrix(transform.localToWorldMatrix);
 
@@ -108,7 +104,7 @@ namespace ifelse.Shapes
 
         private void RenderCached()
         {
-            if (cachedRenderPrefab == null) { return; }
+            if (retainedModePrefab == null) { return; }
 
             foreach (ShapeSO shapeSO in shapes)
             {
@@ -126,7 +122,7 @@ namespace ifelse.Shapes
 
                 if (shapeRendererLink[shapeSO] == null)
                 {
-                    shapeRendererLink[shapeSO] = Instantiate(cachedRenderPrefab);
+                    shapeRendererLink[shapeSO] = Instantiate(retainedModePrefab);
                     shapeRendererLink[shapeSO].sharedMesh = shape.Mesh;
                 }
             }

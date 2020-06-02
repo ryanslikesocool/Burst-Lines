@@ -16,7 +16,10 @@ namespace ifelse.Shapes
         protected SerializedProperty eulerRotation;
         protected SerializedProperty scale;
 
+        protected SerializedProperty colorMode;
+        protected SerializedProperty blendMode;
         protected SerializedProperty color;
+        protected SerializedProperty colors;
         protected SerializedProperty rendererType;
         protected SerializedProperty billboardMethod;
         protected SerializedProperty quadLineAlignment;
@@ -37,7 +40,10 @@ namespace ifelse.Shapes
             eulerRotation = shape.FindPropertyRelative("eulerRotation");
             scale = shape.FindPropertyRelative("scale");
 
+            colorMode = shape.FindPropertyRelative("colorMode");
+            blendMode = shape.FindPropertyRelative("blendMode");
             color = shape.FindPropertyRelative("color");
+            colors = shape.FindPropertyRelative("colors");
             rendererType = shape.FindPropertyRelative("rendererType");
             billboardMethod = shape.FindPropertyRelative("billboardMethod");
             quadLineAlignment = shape.FindPropertyRelative("quadLineAlignment");
@@ -52,7 +58,7 @@ namespace ifelse.Shapes
         public override void OnInspectorGUI()
         {
             ShapeEditors.TransformEditor(position, eulerRotation, scale);
-            ShapeEditors.RendererEditor(color, rendererType, billboardMethod, quadLineAlignment, quadLineThickness);
+            ShapeEditors.RendererEditor(colorMode, blendMode, color, colors, rendererType, billboardMethod, quadLineAlignment, quadLineThickness);
         }
 
         public abstract void DuringSceneGUI(SceneView sceneView);

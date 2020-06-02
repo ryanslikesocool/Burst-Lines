@@ -18,19 +18,37 @@ namespace ifelse.Shapes
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
 
-        public static void RendererEditor(SerializedProperty color, SerializedProperty rendererType, SerializedProperty billboardMethod, SerializedProperty quadLineAlignment, SerializedProperty quadLineThickness)
+        public static void RendererEditor(SerializedProperty colorMode, SerializedProperty blendMode, SerializedProperty color, SerializedProperty colors, SerializedProperty rendererType, SerializedProperty billboardMethod, SerializedProperty quadLineAlignment, SerializedProperty quadLineThickness)
         {
             EditorGUILayout.LabelField("Renderer", EditorStyles.boldLabel);
 
-            EditorGUILayout.PropertyField(color);
+            EditorGUILayout.PropertyField(colorMode);
+
+            EditorGUI.indentLevel++;
+            switch ((ColorMode)colorMode.enumValueIndex)
+            {
+                case ColorMode.Solid:
+                    EditorGUILayout.PropertyField(color);
+                    break;
+                default:
+                    EditorGUILayout.PropertyField(blendMode);
+                    EditorGUILayout.PropertyField(colors);
+                    break;
+            }
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight / 2);
+
             EditorGUILayout.PropertyField(rendererType);
 
             switch ((RendererType)rendererType.enumValueIndex)
             {
                 case RendererType.QuadLine:
+                    EditorGUI.indentLevel++;
                     EditorGUILayout.PropertyField(billboardMethod);
                     EditorGUILayout.PropertyField(quadLineAlignment);
                     EditorGUILayout.PropertyField(quadLineThickness);
+                    EditorGUI.indentLevel--;
                     break;
             }
 
@@ -62,9 +80,9 @@ namespace ifelse.Shapes
         public static void CenterPolygonEditor(PolygonShape shape)
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Center True"))
+            if (GUILayout.Button("Center Bounds"))
             {
-                shape.CenterPointsTo(CenterMode.True);
+                shape.CenterPointsTo(CenterMode.Bounds);
             }
             if (GUILayout.Button("Center Average"))
             {
