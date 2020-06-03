@@ -66,7 +66,7 @@ namespace ifelse.Shapes
 
                 inputDependencies = shape.CalculateVertices(inputDependencies);
 
-                shape.MatchColorLength();
+                shape.CalculateColors();
 
                 shape.ClearDirty();
             }
@@ -124,7 +124,7 @@ namespace ifelse.Shapes
 
                 shapeSO.GetProps(out Shape shape);
 
-                shape.Cache();
+                Mesh mesh = shape.Cache();
 
                 if (!shapeRendererLink.ContainsKey(shapeSO))
                 {
@@ -134,7 +134,7 @@ namespace ifelse.Shapes
                 if (shapeRendererLink[shapeSO] == null)
                 {
                     shapeRendererLink[shapeSO] = Instantiate(retainedModePrefab);
-                    shapeRendererLink[shapeSO].sharedMesh = shape.Mesh;
+                    shapeRendererLink[shapeSO].sharedMesh = mesh;
                 }
             }
         }

@@ -12,6 +12,76 @@ namespace ifelse.Shapes
     [System.Serializable]
     public class PolygonShape : Shape
     {
+        #region Properties
+
+        public RendererType rendererType;
+        public RendererType RendererType
+        {
+            get { return rendererType; }
+            set
+            {
+                rendererType = value;
+                MarkDirty();
+            }
+        }
+
+        public ColorMode colorMode = ColorMode.Solid;
+        public ColorMode ColorMode
+        {
+            get { return colorMode; }
+            set
+            {
+                colorMode = value;
+                MarkDirty();
+            }
+        }
+
+        public BlendMode blendMode = BlendMode.Gradient;
+        public BlendMode BlendMode
+        {
+            get { return blendMode; }
+            set
+            {
+                blendMode = value;
+                MarkDirty();
+            }
+        }
+
+        public Color32 color = new Color32(0, 0, 0, 255);
+        public Color32 Color
+        {
+            get { return color; }
+            set
+            {
+                color = value;
+                MarkDirty();
+            }
+        }
+
+        public Color32[] colors = new Color32[0];
+        public Color32[] Colors
+        {
+            get { return colors; }
+            set
+            {
+                colors = value;
+                MarkDirty();
+            }
+        }
+
+        protected Color32[] vertexColors;
+
+        public Mesh mesh;
+        public Mesh Mesh
+        {
+            get { return mesh; }
+            set
+            {
+                mesh = value;
+                MarkDirty();
+            }
+        }
+
         public bool closeShape = true;
         public bool CloseShape
         {
@@ -45,7 +115,122 @@ namespace ifelse.Shapes
             }
         }
 
-        public override void RenderPixelLine()
+
+        public BillboardMethod billboardMethod;
+        public BillboardMethod BillboardMethod
+        {
+            get { return billboardMethod; }
+            set
+            {
+                billboardMethod = value;
+                MarkDirty();
+            }
+        }
+
+        public float quadLineThickness;
+        public float QuadLineThickness
+        {
+            get { return quadLineThickness; }
+            set
+            {
+                quadLineThickness = value;
+                MarkDirty();
+            }
+        }
+
+        public QuadLineAlignment quadLineAlignment;
+        public QuadLineAlignment QuadLineAlignment
+        {
+            get { return quadLineAlignment; }
+            set
+            {
+                quadLineAlignment = value;
+                MarkDirty();
+            }
+        }
+
+        public CapType capA;
+        public CapType CapA
+        {
+            get { return capA; }
+            set
+            {
+                capA = value;
+                MarkDirty();
+            }
+        }
+
+        public int capDetailA;
+        public int CapDetailA
+        {
+            get { return capDetailA; }
+            set
+            {
+                capDetailA = value;
+                MarkDirty();
+            }
+        }
+
+        public CapType capB;
+        public CapType CapB
+        {
+            get { return capB; }
+            set
+            {
+                capB = value;
+                MarkDirty();
+            }
+        }
+
+        public int capDetailB;
+        public int CapDetailB
+        {
+            get { return capDetailB; }
+            set
+            {
+                capDetailB = value;
+                MarkDirty();
+            }
+        }
+
+        #endregion
+
+        #region Execution
+
+        public override void Render()
+        {
+            if (mesh != null)
+            {
+                Mesh.DestroyImmediate(mesh);
+            }
+
+            switch (rendererType)
+            {
+                case RendererType.PixelLine:
+                    RenderPixelLine();
+                    break;
+                case RendererType.QuadLine:
+                    RenderQuadLine();
+                    break;
+            }
+        }
+
+        public override Mesh Cache()
+        {
+            switch (rendererType)
+            {
+                case RendererType.PixelLine:
+                    CachePixelLine();
+                    break;
+                case RendererType.QuadLine:
+                    CacheQuadLine();
+                    break;
+            }
+
+            return Mesh;
+        }
+
+        public virtual void RenderPixelLine()
         {
             if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return; }
 
@@ -60,7 +245,7 @@ namespace ifelse.Shapes
             GL.End();
         }
 
-        public override void RenderQuadLine()
+        public virtual void RenderQuadLine()
         {
             GL.Begin(GL.QUADS);
 
@@ -73,7 +258,7 @@ namespace ifelse.Shapes
             GL.End();
         }
 
-        public override void CachePixelLine()
+        public virtual void CachePixelLine()
         {
             if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return; }
 
@@ -95,7 +280,7 @@ namespace ifelse.Shapes
             Mesh.SetColors(vertexColors);
         }
 
-        public override void CacheQuadLine()
+        public virtual void CacheQuadLine()
         {
             if (Mesh == null)
             {
@@ -114,6 +299,10 @@ namespace ifelse.Shapes
             Mesh.SetIndices(indices, MeshTopology.Quads, 0);
             Mesh.SetColors(vertexColors);
         }
+
+        #endregion
+
+        #region Calculation
 
         public override JobHandle CalculateTransform(JobHandle inputDependencies)
         {
@@ -233,7 +422,7 @@ namespace ifelse.Shapes
             }
         }
 
-        public override void MatchColorLength()
+        public override void CalculateColors()
         {
             if (colors == null || colors.Length == 0) { colors = new Color32[] { Color }; }
 
@@ -464,5 +653,7 @@ namespace ifelse.Shapes
                 VertexPositions[lineStart + 1] = b;
             }
         }
+
+        #endregion
     }
 }
