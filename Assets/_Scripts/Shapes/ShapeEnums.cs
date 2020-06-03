@@ -52,6 +52,6 @@ namespace ifelse.Shapes
     public enum BlendMode
     {
         Step,
-        Gradient
+        Mix
     }
 }

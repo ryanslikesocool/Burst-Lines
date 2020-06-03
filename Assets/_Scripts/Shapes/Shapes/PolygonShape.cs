@@ -36,7 +36,7 @@ namespace ifelse.Shapes
             }
         }
 
-        public BlendMode blendMode = BlendMode.Gradient;
+        public BlendMode blendMode = BlendMode.Mix;
         public BlendMode BlendMode
         {
             get { return blendMode; }
@@ -518,7 +518,7 @@ namespace ifelse.Shapes
             }
 
             if ((colorMode == ColorMode.PerVertex || colorMode == ColorMode.PerPoint)
-             && blendMode == BlendMode.Gradient)
+             && blendMode == BlendMode.Mix)
             {
                 int offset = rendererType == RendererType.PixelLine ? 1 : 2;
                 Color32[] remappedColors = new Color32[vertexColors.Length];

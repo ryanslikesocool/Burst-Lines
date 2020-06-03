@@ -13,6 +13,20 @@ namespace ifelse.Shapes
         private SerializedProperty closeShape;
         private SerializedProperty points;
 
+        private SerializedProperty colorMode;
+        private SerializedProperty blendMode;
+        private SerializedProperty color;
+        private SerializedProperty colors;
+        private SerializedProperty rendererType;
+        private SerializedProperty billboardMethod;
+        private SerializedProperty quadLineAlignment;
+        private SerializedProperty quadLineThickness;
+
+        private SerializedProperty capA;
+        private SerializedProperty capDetailA;
+        private SerializedProperty capB;
+        private SerializedProperty capDetailB;
+
         public override void OnEnable()
         {
             base.OnEnable();
@@ -21,6 +35,20 @@ namespace ifelse.Shapes
 
             closeShape = shape.FindPropertyRelative("closeShape");
             points = shape.FindPropertyRelative("points");
+
+            colorMode = shape.FindPropertyRelative("colorMode");
+            blendMode = shape.FindPropertyRelative("blendMode");
+            color = shape.FindPropertyRelative("color");
+            colors = shape.FindPropertyRelative("colors");
+            rendererType = shape.FindPropertyRelative("rendererType");
+            billboardMethod = shape.FindPropertyRelative("billboardMethod");
+            quadLineAlignment = shape.FindPropertyRelative("quadLineAlignment");
+            quadLineThickness = shape.FindPropertyRelative("quadLineThickness");
+
+            capA = shape.FindPropertyRelative("capA");
+            capDetailA = shape.FindPropertyRelative("capDetailA");
+            capB = shape.FindPropertyRelative("capB");
+            capDetailB = shape.FindPropertyRelative("capDetailB");
 
             SceneView.duringSceneGui += DuringSceneGUI;
         }
@@ -41,8 +69,9 @@ namespace ifelse.Shapes
             bool hideCap = (RendererType)rendererType.enumValueIndex == RendererType.PixelLine;
             ShapeEditors.CapEditor(capA, capDetailA, capB, capDetailB, hideCap);
 
-            ShapeEditors.PolygonShapeEditor(closeShape, points);
-            ShapeEditors.CenterPolygonEditor(polygonShape);
+            ShapeEditors.PolygonShapeEditor(closeShape, points, polygonShape);
+
+            ShapeEditors.RendererEditor(colorMode, blendMode, color, colors, rendererType, billboardMethod, quadLineAlignment, quadLineThickness);
 
             if (EditorGUI.EndChangeCheck())
             {

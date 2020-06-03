@@ -15,6 +15,15 @@ namespace ifelse.Shapes
         private SerializedProperty radius;
         private SerializedProperty segments;
 
+        private SerializedProperty colorMode;
+        private SerializedProperty blendMode;
+        private SerializedProperty color;
+        private SerializedProperty colors;
+        private SerializedProperty rendererType;
+        private SerializedProperty billboardMethod;
+        private SerializedProperty quadLineAlignment;
+        private SerializedProperty quadLineThickness;
+
         public override void OnEnable()
         {
             base.OnEnable();
@@ -25,6 +34,15 @@ namespace ifelse.Shapes
             angleB = shape.FindPropertyRelative("angleB");
             radius = shape.FindPropertyRelative("radius");
             segments = shape.FindPropertyRelative("segments");
+
+            colorMode = shape.FindPropertyRelative("colorMode");
+            blendMode = shape.FindPropertyRelative("blendMode");
+            color = shape.FindPropertyRelative("color");
+            colors = shape.FindPropertyRelative("colors");
+            rendererType = shape.FindPropertyRelative("rendererType");
+            billboardMethod = shape.FindPropertyRelative("billboardMethod");
+            quadLineAlignment = shape.FindPropertyRelative("quadLineAlignment");
+            quadLineThickness = shape.FindPropertyRelative("quadLineThickness");
 
             SceneView.duringSceneGui += DuringSceneGUI;
         }
@@ -43,6 +61,7 @@ namespace ifelse.Shapes
             base.OnInspectorGUI();
 
             ShapeEditors.ArcShapeEditor(angleA, angleB, radius, segments);
+            ShapeEditors.RendererEditor(colorMode, blendMode, color, colors, rendererType, billboardMethod, quadLineAlignment, quadLineThickness);
 
             if (EditorGUI.EndChangeCheck())
             {

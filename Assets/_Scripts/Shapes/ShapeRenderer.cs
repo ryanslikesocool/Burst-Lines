@@ -12,14 +12,14 @@ namespace ifelse.Shapes
     public class ShapeRenderer : MonoBehaviour
     {
 #if UNITY_EDITOR
-        [SerializeField] private bool renderInEditMode = true;
+        public bool renderInEditMode = true;
 #endif
-        [SerializeField] private RenderMode renderMode = RenderMode.Immediate;
+        public RenderMode renderMode = RenderMode.Immediate;
 
-        [Space] [SerializeField] private MeshFilter retainedModePrefab = null;
-        [SerializeField] private Material immediateModeMaterial = null;
+        public Material immediateModeMaterial = null;
+        public MeshFilter retainedModePrefab = null;
 
-        [Space] [SerializeField] private ShapeSO[] shapes = null;
+        public List<ShapeSO> shapes = null;
 
         private Dictionary<ShapeSO, MeshFilter> shapeRendererLink = new Dictionary<ShapeSO, MeshFilter>();
 
@@ -47,7 +47,7 @@ namespace ifelse.Shapes
                 return;
             }
 #endif
-            if (shapes == null || shapes.Length == 0
+            if (shapes == null || shapes.Count == 0
              || (renderMode == RenderMode.Immediate && immediateModeMaterial == null)
              || (renderMode == RenderMode.Retained && retainedModePrefab == null)) { return; }
 
@@ -134,6 +134,7 @@ namespace ifelse.Shapes
                 if (shapeRendererLink[shapeSO] == null)
                 {
                     shapeRendererLink[shapeSO] = Instantiate(retainedModePrefab);
+                    shapeRendererLink[shapeSO].hideFlags = HideFlags.DontSave;
                     shapeRendererLink[shapeSO].sharedMesh = mesh;
                 }
             }

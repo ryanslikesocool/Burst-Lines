@@ -22,23 +22,6 @@ namespace ifelse.Shapes
         {
             EditorGUILayout.LabelField("Renderer", EditorStyles.boldLabel);
 
-            EditorGUILayout.PropertyField(colorMode);
-
-            EditorGUI.indentLevel++;
-            switch ((ColorMode)colorMode.enumValueIndex)
-            {
-                case ColorMode.Solid:
-                    EditorGUILayout.PropertyField(color);
-                    break;
-                default:
-                    EditorGUILayout.PropertyField(blendMode);
-                    EditorGUILayout.PropertyField(colors);
-                    break;
-            }
-            EditorGUI.indentLevel--;
-
-            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight / 2);
-
             EditorGUILayout.PropertyField(rendererType);
 
             switch ((RendererType)rendererType.enumValueIndex)
@@ -52,15 +35,42 @@ namespace ifelse.Shapes
                     break;
             }
 
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight / 2);
+
+            EditorGUILayout.PropertyField(colorMode);
+            EditorGUI.indentLevel++;
+            switch ((ColorMode)colorMode.enumValueIndex)
+            {
+                case ColorMode.Solid:
+                    EditorGUILayout.PropertyField(color);
+                    break;
+                default:
+                    EditorGUILayout.PropertyField(blendMode);
+                    EditorGUILayout.PropertyField(colors);
+                    break;
+            }
+            EditorGUI.indentLevel--;
+
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
 
-        public static void PolygonShapeEditor(SerializedProperty closeShape, SerializedProperty points)
+        public static void PolygonShapeEditor(SerializedProperty closeShape, SerializedProperty points, PolygonShape shape)
         {
             EditorGUILayout.LabelField("Polygon", EditorStyles.boldLabel);
 
             EditorGUILayout.PropertyField(closeShape);
             EditorGUILayout.PropertyField(points);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Center Bounds"))
+            {
+                shape.CenterPointsTo(CenterMode.Bounds);
+            }
+            if (GUILayout.Button("Center Average"))
+            {
+                shape.CenterPointsTo(CenterMode.Average);
+            }
+            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
@@ -73,22 +83,6 @@ namespace ifelse.Shapes
             EditorGUILayout.PropertyField(angleB);
             EditorGUILayout.PropertyField(radius);
             EditorGUILayout.IntSlider(segments, 3, 128);
-
-            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
-        }
-
-        public static void CenterPolygonEditor(PolygonShape shape)
-        {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Center Bounds"))
-            {
-                shape.CenterPointsTo(CenterMode.Bounds);
-            }
-            if (GUILayout.Button("Center Average"))
-            {
-                shape.CenterPointsTo(CenterMode.Average);
-            }
-            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
