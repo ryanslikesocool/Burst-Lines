@@ -46,7 +46,8 @@ namespace ifelse.Shapes
     {
         Solid,
         PerPoint,
-        PerVertex
+        PerVertex,
+        Gradient
     }
 
     public enum BlendMode

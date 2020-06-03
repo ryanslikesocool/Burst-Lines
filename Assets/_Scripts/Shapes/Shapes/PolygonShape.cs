@@ -5,7 +5,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Burst;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace ifelse.Shapes
 {
@@ -65,6 +64,17 @@ namespace ifelse.Shapes
             set
             {
                 colors = value;
+                MarkDirty();
+            }
+        }
+
+        public Gradient gradient = new Gradient();
+        public Gradient Gradient
+        {
+            get { return gradient; }
+            set
+            {
+                gradient = value;
                 MarkDirty();
             }
         }
@@ -426,7 +436,7 @@ namespace ifelse.Shapes
         {
             if (colors == null || colors.Length == 0) { colors = new Color32[] { Color }; }
 
-            int pointLength = points.Length;
+            int pointCount = points.Length;
             int vertexCount = pointsToRender.Length;
 
             switch (colorMode)
@@ -440,23 +450,23 @@ namespace ifelse.Shapes
                     vertexColors = colors;
                     break;
                 case ColorMode.PerPoint:
-                    if (colors.Length != pointLength)
+                    if (colors.Length != pointCount)
                     {
-                        Color32[] pointColors = new Color32[pointLength];
-                        if (colors.Length < pointLength)
+                        Color32[] pointColors = new Color32[pointCount];
+                        if (colors.Length < pointCount)
                         {
                             for (int i = 0; i < colors.Length; i++)
                             {
                                 pointColors[i] = colors[i];
                             }
-                            for (int i = colors.Length; i < pointLength; i++)
+                            for (int i = colors.Length; i < pointCount; i++)
                             {
                                 pointColors[i] = colors[colors.Length - 1];
                             }
                         }
                         else
                         {
-                            for (int i = 0; i < pointLength; i++)
+                            for (int i = 0; i < pointCount; i++)
                             {
                                 pointColors[i] = colors[i];
                             }
@@ -515,9 +525,37 @@ namespace ifelse.Shapes
 
                     vertexColors = colors;
                     break;
+                case ColorMode.Gradient:
+                    vertexColors = new Color32[vertexCount];
+                    float step = 1f / points.Length;
+                    if (rendererType == RendererType.QuadLine)
+                    {
+                        for (int i = 0; i < pointCount; i++)
+                        {
+                            int vIndex = i * 4;
+                            Color eval = gradient.Evaluate(i * step);
+                            if (vIndex >= vertexColors.Length) { break; }
+                            vertexColors[vIndex + 0] = eval;
+                            vertexColors[vIndex + 1] = eval;
+                            vertexColors[vIndex + 2] = eval;
+                            vertexColors[vIndex + 3] = eval;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < colors.Length; i++)
+                        {
+                            int vIndex = i * 2;
+                            Color eval = gradient.Evaluate(i * step);
+                            if (vIndex >= vertexColors.Length) { break; }
+                            vertexColors[vIndex + 0] = eval;
+                            vertexColors[vIndex + 1] = eval;
+                        }
+                    }
+                    break;
             }
 
-            if ((colorMode == ColorMode.PerVertex || colorMode == ColorMode.PerPoint)
+            if ((colorMode != ColorMode.Solid)
              && blendMode == BlendMode.Mix)
             {
                 int offset = rendererType == RendererType.PixelLine ? 1 : 2;
@@ -527,16 +565,32 @@ namespace ifelse.Shapes
                     remappedColors[i] = vertexColors[(i + offset).Wrap(0, vertexColors.Length, 1)];
                 }
 
-                if (colorMode == ColorMode.PerPoint && !closeShape)
+                if (!closeShape)
                 {
-                    if (rendererType == RendererType.PixelLine)
+                    if (colorMode == ColorMode.PerPoint)
                     {
-                        remappedColors[remappedColors.Length - 1] = colors[colors.Length - 1];
+                        if (rendererType == RendererType.PixelLine)
+                        {
+                            remappedColors[remappedColors.Length - 1] = colors[colors.Length - 1];
+                        }
+                        else
+                        {
+                            remappedColors[remappedColors.Length - 1] = colors[colors.Length - 1];
+                            remappedColors[remappedColors.Length - 2] = colors[colors.Length - 1];
+                        }
                     }
-                    else
+                    else if (colorMode == ColorMode.Gradient)
                     {
-                        remappedColors[remappedColors.Length - 1] = colors[colors.Length - 1];
-                        remappedColors[remappedColors.Length - 2] = colors[colors.Length - 1];
+                        if (rendererType == RendererType.PixelLine)
+                        {
+                            remappedColors[remappedColors.Length - 1] = gradient.Evaluate(1);
+                        }
+                        else
+                        {
+                            Color eval = gradient.Evaluate(1);
+                            remappedColors[remappedColors.Length - 1] = eval;
+                            remappedColors[remappedColors.Length - 2] = eval;
+                        }
                     }
                 }
 

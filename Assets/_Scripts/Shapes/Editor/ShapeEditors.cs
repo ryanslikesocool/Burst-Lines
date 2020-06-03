@@ -19,7 +19,7 @@ namespace ifelse.Shapes
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
 
-        public static void RendererEditor(SerializedProperty colorMode, SerializedProperty blendMode, SerializedProperty color, SerializedProperty colors, SerializedProperty rendererType, SerializedProperty billboardMethod, SerializedProperty quadLineAlignment, SerializedProperty quadLineThickness)
+        public static void RendererEditor(SerializedProperty colorMode, SerializedProperty blendMode, SerializedProperty color, ReorderableList colors, SerializedProperty gradient, SerializedProperty rendererType, SerializedProperty billboardMethod, SerializedProperty quadLineAlignment, SerializedProperty quadLineThickness)
         {
             EditorGUILayout.LabelField("Renderer", EditorStyles.boldLabel);
 
@@ -45,9 +45,13 @@ namespace ifelse.Shapes
                 case ColorMode.Solid:
                     EditorGUILayout.PropertyField(color);
                     break;
+                case ColorMode.Gradient:
+                    EditorGUILayout.PropertyField(blendMode);
+                    EditorGUILayout.PropertyField(gradient);
+                    break;
                 default:
                     EditorGUILayout.PropertyField(blendMode);
-                    EditorGUILayout.PropertyField(colors);
+                    colors.DoLayoutList();
                     break;
             }
             EditorGUI.indentLevel--;

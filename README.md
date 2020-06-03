@@ -8,10 +8,10 @@
 - Stored in scriptable objects for easy reuse
 - Pixel width or quad-based shapes
 - URP compatible (not tested on HDRP or classic but it might work)
-- Arcs
 - Miter angles (nice corners)
-- Color modes (fill, per point, per vertex)
-- Color blending modes (step, gradient)
+- Arcs
+- Color modes (fill, per point, per vertex, gradient)
+- Color blending modes (step, mix)
 
 ## Dependencies
 #### This package is based around Unity's Jobs and Burst compiler systems.  Because of this, there are a few dependencies that are required.
