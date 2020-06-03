@@ -32,13 +32,6 @@ MonoBehaviour:
     - serializedVersion: 2
       rgba: 4294073023
     mesh: {fileID: 0}
-    billboardMethod: 0
-    quadLineThickness: 0.25
-    quadLineAlignment: 1
-    capA: 0
-    capDetailA: 1
-    capB: 1
-    capDetailB: 0
     closeShape: 1
     points:
     - {x: -0.125, y: -0.125, z: 0}
@@ -54,3 +47,10 @@ MonoBehaviour:
     - {x: -0.375, y: 0.5, z: 0}
     - {x: -0.375, y: 0.5, z: 0}
     - {x: -0.125, y: -0.125, z: 0}
+    billboardMethod: 0
+    quadLineThickness: 0.25
+    quadLineAlignment: 1
+    capA: 0
+    capDetailA: 1
+    capB: 1
+    capDetailB: 0

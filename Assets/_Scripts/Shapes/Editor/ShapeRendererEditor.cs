@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
-using System.Linq;
 
 namespace ifelse.Shapes
 {
@@ -30,7 +29,7 @@ namespace ifelse.Shapes
 
             shapeList = new ReorderableList(serializedObject, shapes, true, true, true, true)
             {
-                drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, $"Layout Items ({shapeRenderer.shapes.Count})"); },
+                drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, $"Shapes ({shapes.arraySize})"); },
                 drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
                 {
                     rect.y += 2;

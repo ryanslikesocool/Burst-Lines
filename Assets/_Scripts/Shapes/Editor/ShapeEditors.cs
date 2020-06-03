@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
 
 namespace ifelse.Shapes
 {
@@ -54,12 +55,12 @@ namespace ifelse.Shapes
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
 
-        public static void PolygonShapeEditor(SerializedProperty closeShape, SerializedProperty points, PolygonShape shape)
+        public static void PolygonShapeEditor(SerializedProperty closeShape, ReorderableList points, PolygonShape shape)
         {
             EditorGUILayout.LabelField("Polygon", EditorStyles.boldLabel);
 
             EditorGUILayout.PropertyField(closeShape);
-            EditorGUILayout.PropertyField(points);
+            points.DoLayoutList();
 
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Center Bounds"))

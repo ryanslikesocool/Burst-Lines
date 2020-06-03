@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
 
 namespace ifelse.Shapes
 {
@@ -27,6 +28,8 @@ namespace ifelse.Shapes
         private SerializedProperty capB;
         private SerializedProperty capDetailB;
 
+        private ReorderableList pointsList;
+
         public override void OnEnable()
         {
             base.OnEnable();
@@ -50,6 +53,20 @@ namespace ifelse.Shapes
             capB = shape.FindPropertyRelative("capB");
             capDetailB = shape.FindPropertyRelative("capDetailB");
 
+            pointsList = new ReorderableList(serializedObject, points, true, true, true, true)
+            {
+                drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, $"Points ({points.arraySize})"); },
+                drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+                {
+                    rect.y += 2;
+                    rect.height = EditorGUIUtility.singleLineHeight;
+                    EditorGUI.PropertyField(rect, points.GetArrayElementAtIndex(index));
+                    rect.y += 2;
+                },
+                onReorderCallback = (ReorderableList list) => { polygonShape.MarkDirty(); }
+            };
+            pointsList.list = polygonShape.points;
+
             SceneView.duringSceneGui += DuringSceneGUI;
         }
 
@@ -66,10 +83,9 @@ namespace ifelse.Shapes
 
             base.OnInspectorGUI();
 
-            bool hideCap = (RendererType)rendererType.enumValueIndex == RendererType.PixelLine;
-            ShapeEditors.CapEditor(capA, capDetailA, capB, capDetailB, hideCap);
+            ShapeEditors.PolygonShapeEditor(closeShape, pointsList, polygonShape);
 
-            ShapeEditors.PolygonShapeEditor(closeShape, points, polygonShape);
+            ShapeEditors.CapEditor(capA, capDetailA, capB, capDetailB, (RendererType)rendererType.enumValueIndex == RendererType.PixelLine);
 
             ShapeEditors.RendererEditor(colorMode, blendMode, color, colors, rendererType, billboardMethod, quadLineAlignment, quadLineThickness);
 
