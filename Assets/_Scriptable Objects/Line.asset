@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 10b19fe29beee4f958e922c7aaeca5f3, type: 3}
-  m_Name: Miter
+  m_Name: Line
   m_EditorClassIdentifier: 
   shape:
     position: {x: 0, y: 0, z: 0}
     eulerRotation: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
-    rendererType: 1
+    rendererType: 0
     colorMode: 1
     blendMode: 1
     color:
@@ -61,22 +61,22 @@ MonoBehaviour:
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     mesh: {fileID: 0}
-    closeShape: 0
+    closeShape: 1
     points:
-    - x: 0.0625
-      y: 0.0625
+    - x: -0.125
+      y: -0.125
       z: 0
-    - x: -0.25
-      y: 0.1875
+    - x: 0.5
+      y: -0.375
       z: 0
-    - x: 0.25
-      y: 0.25
+    - x: -0.5
+      y: -0.5
       z: 0
-    - x: 0.1875
-      y: -0.25
+    - x: -0.375
+      y: 0.5
       z: 0
     billboardMethod: 0
-    quadLineThickness: 0.025
+    quadLineThickness: 0.25
     quadLineAlignment: 1
     capA: 0
     capDetailA: 1

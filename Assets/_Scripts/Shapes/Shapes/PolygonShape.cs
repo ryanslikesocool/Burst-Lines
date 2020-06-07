@@ -14,194 +14,24 @@ namespace ifelse.Shapes
         #region Properties
 
         public RendererType rendererType;
-        public RendererType RendererType
-        {
-            get { return rendererType; }
-            set
-            {
-                rendererType = value;
-                MarkDirty();
-            }
-        }
-
         public ColorMode colorMode = ColorMode.Solid;
-        public ColorMode ColorMode
-        {
-            get { return colorMode; }
-            set
-            {
-                colorMode = value;
-                MarkDirty();
-            }
-        }
-
         public BlendMode blendMode = BlendMode.Mix;
-        public BlendMode BlendMode
-        {
-            get { return blendMode; }
-            set
-            {
-                blendMode = value;
-                MarkDirty();
-            }
-        }
-
         public Color32 color = new Color32(0, 0, 0, 255);
-        public Color32 Color
-        {
-            get { return color; }
-            set
-            {
-                color = value;
-                MarkDirty();
-            }
-        }
-
         public Color32[] colors = new Color32[0];
-        public Color32[] Colors
-        {
-            get { return colors; }
-            set
-            {
-                colors = value;
-                MarkDirty();
-            }
-        }
-
         public Gradient gradient = new Gradient();
-        public Gradient Gradient
-        {
-            get { return gradient; }
-            set
-            {
-                gradient = value;
-                MarkDirty();
-            }
-        }
-
         protected Color32[] vertexColors;
-
         public Mesh mesh;
-        public Mesh Mesh
-        {
-            get { return mesh; }
-            set
-            {
-                mesh = value;
-                MarkDirty();
-            }
-        }
-
         public bool closeShape = true;
-        public bool CloseShape
-        {
-            get { return closeShape; }
-            set
-            {
-                closeShape = value;
-                MarkDirty();
-            }
-        }
-
-        public Vector3[] points = null;
-        public Vector3[] Points
-        {
-            get { return points; }
-            set
-            {
-                points = value;
-                MarkDirty();
-            }
-        }
-
-        public Vector3[] pointsToRender;
-        public Vector3[] PointsToRender
-        {
-            get { return pointsToRender; }
-            set
-            {
-                pointsToRender = value;
-                MarkDirty();
-            }
-        }
-
-
+        public float3[] points = null;
         public BillboardMethod billboardMethod;
-        public BillboardMethod BillboardMethod
-        {
-            get { return billboardMethod; }
-            set
-            {
-                billboardMethod = value;
-                MarkDirty();
-            }
-        }
-
         public float quadLineThickness;
-        public float QuadLineThickness
-        {
-            get { return quadLineThickness; }
-            set
-            {
-                quadLineThickness = value;
-                MarkDirty();
-            }
-        }
-
         public QuadLineAlignment quadLineAlignment;
-        public QuadLineAlignment QuadLineAlignment
-        {
-            get { return quadLineAlignment; }
-            set
-            {
-                quadLineAlignment = value;
-                MarkDirty();
-            }
-        }
-
         public CapType capA;
-        public CapType CapA
-        {
-            get { return capA; }
-            set
-            {
-                capA = value;
-                MarkDirty();
-            }
-        }
-
         public int capDetailA;
-        public int CapDetailA
-        {
-            get { return capDetailA; }
-            set
-            {
-                capDetailA = value;
-                MarkDirty();
-            }
-        }
-
         public CapType capB;
-        public CapType CapB
-        {
-            get { return capB; }
-            set
-            {
-                capB = value;
-                MarkDirty();
-            }
-        }
-
         public int capDetailB;
-        public int CapDetailB
-        {
-            get { return capDetailB; }
-            set
-            {
-                capDetailB = value;
-                MarkDirty();
-            }
-        }
+
+        public NativeArray<float3> pointsToRender;
 
         #endregion
 
@@ -225,19 +55,19 @@ namespace ifelse.Shapes
             }
         }
 
-        public override Mesh Cache()
+        public override Mesh Retain()
         {
             switch (rendererType)
             {
                 case RendererType.PixelLine:
-                    CachePixelLine();
+                    RetainPixelLine();
                     break;
                 case RendererType.QuadLine:
-                    CacheQuadLine();
+                    RetainQuadLine();
                     break;
             }
 
-            return Mesh;
+            return mesh;
         }
 
         public virtual void RenderPixelLine()
@@ -268,16 +98,16 @@ namespace ifelse.Shapes
             GL.End();
         }
 
-        public virtual void CachePixelLine()
+        public virtual void RetainPixelLine()
         {
             if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return; }
 
-            if (Mesh == null)
+            if (mesh == null)
             {
-                Mesh = new Mesh();
-                Mesh.name = $"Shape {this.GetHashCode()} Line";
+                mesh = new Mesh();
+                mesh.name = $"Shape {this.GetHashCode()} Line";
             }
-            Mesh.Clear();
+            mesh.Clear();
 
             int[] indices = new int[pointsToRender.Length];
             for (int i = 0; i < indices.Length; i++)
@@ -285,19 +115,21 @@ namespace ifelse.Shapes
                 indices[i] = i;
             }
 
-            Mesh.SetVertices(pointsToRender);
-            Mesh.SetIndices(indices, MeshTopology.Lines, 0);
-            Mesh.SetColors(vertexColors);
+            mesh.SetVertices(pointsToRender);
+            mesh.SetIndices(indices, MeshTopology.Lines, 0);
+            mesh.SetColors(vertexColors);
         }
 
-        public virtual void CacheQuadLine()
+        public virtual void RetainQuadLine()
         {
-            if (Mesh == null)
+            if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return; }
+
+            if (mesh == null)
             {
-                Mesh = new Mesh();
-                Mesh.name = $"Shape {this.GetHashCode()} Quad";
+                mesh = new Mesh();
+                mesh.name = $"Shape {this.GetHashCode()} Quad";
             }
-            Mesh.Clear();
+            mesh.Clear();
 
             int[] indices = new int[pointsToRender.Length];
             for (int i = 0; i < indices.Length; i++)
@@ -305,9 +137,14 @@ namespace ifelse.Shapes
                 indices[i] = i;
             }
 
-            Mesh.SetVertices(pointsToRender);
-            Mesh.SetIndices(indices, MeshTopology.Quads, 0);
-            Mesh.SetColors(vertexColors);
+            mesh.SetVertices(pointsToRender);
+            mesh.SetIndices(indices, MeshTopology.Quads, 0);
+            mesh.SetColors(vertexColors);
+        }
+
+        public override void Clear()
+        {
+            if (pointsToRender.IsCreated) { pointsToRender.Dispose(); }
         }
 
         #endregion
@@ -316,27 +153,24 @@ namespace ifelse.Shapes
 
         public override JobHandle CalculateTransform(JobHandle inputDependencies)
         {
-            NativeArray<Vector3> nativePoints = new NativeArray<Vector3>(points, Allocator.TempJob);
-            NativeArray<float3> positions = nativePoints.Reinterpret<float3>();
-
+            /*NativeArray<float3> positionsIn = new NativeArray<float3>(points, Allocator.TempJob);
             CalculateTransformJob calculateTransformJob = new CalculateTransformJob
             {
                 Translation = position,
                 Rotation = Rotation,
                 Scale = scale,
-                Positions = positions,
+                Positions = positionsIn,
             };
             inputDependencies = calculateTransformJob.Schedule(points.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
-            pointsToRender = Extensions.ToArray(ref positions);
-
-            nativePoints.Dispose();
+            points = positionsIn.ToArray();
+            positionsIn.Dispose();*/
 
             return inputDependencies;
         }
 
-        [BurstCompile]
+        /*[BurstCompile]
         private struct CalculateTransformJob : IJobParallelFor
         {
             [ReadOnly] public float3 Translation;
@@ -351,59 +185,51 @@ namespace ifelse.Shapes
                 Positions[index] = math.rotate(Rotation, Positions[index]);
                 Positions[index] += Translation;
             }
-        }
+        }*/
 
         public override JobHandle CalculateVertices(JobHandle inputDependencies)
         {
             if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return inputDependencies; }
 
-            int pointCount = points.Length - (Extensions.Approximately(points[0], pointsToRender[points.Length - 1]) ? 1 : 0);
+            NativeArray<float3> positionsIn = new NativeArray<float3>(points, Allocator.TempJob);
+            int vertexOffset = closeShape ? 0 : 1;
 
-            NativeArray<Vector3> nativePoints = new NativeArray<Vector3>(points, Allocator.TempJob);
-            NativeArray<float3> positionsIn = nativePoints.Reinterpret<float3>();
-
-            int vertexCount = positionsIn.Length * (rendererType == RendererType.PixelLine ? 2 : 4);
-            NativeArray<float3> vertexPositions = new NativeArray<float3>(vertexCount, Allocator.TempJob);
-            CalculateVerticesJob calculateVerticesJob = new CalculateVerticesJob
+            if (rendererType == RendererType.QuadLine)
             {
-                RendererType = rendererType,
-                Epsilon = EPSILON,
-                Right3 = new float3(1, 0, 0),
-                QuaterTurn = quaternion.Euler(0, 0, math.PI * 0.5f),
-                CloseShape = closeShape,
-                Thickness = QuadLineThickness,
-                BillboardMethod = BillboardMethod,
-                LineAlignment = QuadLineAlignment,
-                Points = positionsIn,
-                VertexPositions = vertexPositions,
-                CapA = CapA,
-                CapB = CapB
-            };
-            inputDependencies = calculateVerticesJob.Schedule(positionsIn.Length, 64, inputDependencies);
-            inputDependencies.Complete();
-
-            if (!closeShape)
+                pointsToRender = new NativeArray<float3>((positionsIn.Length - vertexOffset) * 4, Allocator.Persistent);
+                CalculateVerticesQuadJob calculateVerticesQuadJob = new CalculateVerticesQuadJob
+                {
+                    Epsilon = EPSILON,
+                    Right3 = new float3(1, 0, 0),
+                    QuaterTurn = quaternion.Euler(0, 0, math.PI * 0.5f),
+                    CloseShape = closeShape,
+                    Thickness = quadLineThickness,
+                    BillboardMethod = billboardMethod,
+                    LineAlignment = quadLineAlignment,
+                    Points = positionsIn,
+                    VertexPositions = pointsToRender,
+                    CapA = capA,
+                    CapB = capB
+                };
+                inputDependencies = calculateVerticesQuadJob.Schedule(positionsIn.Length - vertexOffset, 32, inputDependencies);
+            }
+            else
             {
-                if (rendererType == RendererType.QuadLine)
+                pointsToRender = new NativeArray<float3>((points.Length - vertexOffset) * 2, Allocator.Persistent);
+                CalculateVerticesLineJob calculateVerticesLineJob = new CalculateVerticesLineJob
                 {
-                    Extensions.RemoveQuadAtIndex(ref vertexPositions, pointsToRender.Length - 1);
-                }
-                else
-                {
-                    Extensions.RemoveLineAtIndex(ref vertexPositions, pointsToRender.Length - 1);
-                }
+                    Points = positionsIn,
+                    VertexPositions = pointsToRender
+                };
+                inputDependencies = calculateVerticesLineJob.Schedule(positionsIn.Length - vertexOffset, 64, inputDependencies);
             }
 
-            pointsToRender = Extensions.ToArray(ref vertexPositions);
-
-            positionsIn.Dispose();
-            vertexPositions.Dispose();
             return inputDependencies;
         }
 
         public void CenterPointsTo(CenterMode mode)
         {
-            Vector3 center = Vector3.zero;
+            float3 center = Vector3.zero;
             switch (mode)
             {
                 case CenterMode.Bounds:
@@ -418,7 +244,7 @@ namespace ifelse.Shapes
                     break;
                 case CenterMode.Average:
                     center = Vector3.zero;
-                    foreach (Vector3 point in points)
+                    foreach (float3 point in points)
                     {
                         center += point;
                     }
@@ -434,7 +260,7 @@ namespace ifelse.Shapes
 
         public override void CalculateColors()
         {
-            if (colors == null || colors.Length == 0) { colors = new Color32[] { Color }; }
+            if (colors == null || colors.Length == 0) { colors = new Color32[] { color }; }
 
             int pointCount = points.Length;
             int vertexCount = pointsToRender.Length;
@@ -599,9 +425,8 @@ namespace ifelse.Shapes
         }
 
         [BurstCompile]
-        private struct CalculateVerticesJob : IJobParallelFor
+        private struct CalculateVerticesQuadJob : IJobParallelFor
         {
-            [ReadOnly] public RendererType RendererType;
             [ReadOnly] public float Epsilon;
             [ReadOnly] public float3 Right3;
             [ReadOnly] public quaternion QuaterTurn;
@@ -612,27 +437,20 @@ namespace ifelse.Shapes
             [ReadOnly] public CapType CapA;
             [ReadOnly] public CapType CapB;
 
-            [ReadOnly] public NativeArray<float3> Points;
+            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float3> Points;
 
             [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> VertexPositions;
 
             public void Execute(int index)
             {
-                if (RendererType == RendererType.QuadLine)
+                switch (BillboardMethod)
                 {
-                    switch (BillboardMethod)
-                    {
-                        default:
-                            Debug.LogWarning($"This billboard method ({BillboardMethod}) isn't implemented yet.");
-                            break;
-                        case BillboardMethod.Undefined:
-                            CalculateUndefined(index);
-                            break;
-                    }
-                }
-                else
-                {
-                    CalculatePixelLine(index);
+                    default:
+                        Debug.LogWarning($"This billboard method ({BillboardMethod}) isn't implemented yet.");
+                        break;
+                    case BillboardMethod.Undefined:
+                        CalculateUndefined(index);
+                        break;
                 }
             }
 
@@ -676,18 +494,6 @@ namespace ifelse.Shapes
                     }
                 }
 
-                if (Extensions.Approximately(b, c))
-                {
-                    if (index == 0)
-                    {
-                        directionABC = math.rotate(QuaterTurn, math.normalize(b - c)) * Thickness;
-                    }
-                    else if (index == Points.Length - 1)
-                    {
-                        directionBCD = math.rotate(QuaterTurn, math.normalize(b - c)) * Thickness;
-                    }
-                }
-
                 int quadStart = index * 4;
 
                 VertexPositions[quadStart + 0] = b - directionABC * q03Mult;
@@ -697,6 +503,25 @@ namespace ifelse.Shapes
             }
 
             private void CalculatePixelLine(int index)
+            {
+                float3 a = Points[index];
+                float3 b = Points[(index + 1).Wrap(0, Points.Length, 1)];
+
+                int lineStart = index * 2;
+
+                VertexPositions[lineStart] = a;
+                VertexPositions[lineStart + 1] = b;
+            }
+        }
+
+        [BurstCompile]
+        private struct CalculateVerticesLineJob : IJobParallelFor
+        {
+            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float3> Points;
+
+            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> VertexPositions;
+
+            public void Execute(int index)
             {
                 float3 a = Points[index];
                 float3 b = Points[(index + 1).Wrap(0, Points.Length, 1)];

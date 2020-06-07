@@ -12,57 +12,22 @@ namespace ifelse.Shapes
     public class ArcShape : PolygonShape
     {
         public float angleA = -180;
-        public float AngleA
-        {
-            get { return angleA; }
-            set
-            {
-                angleA = value;
-                MarkDirty();
-            }
-        }
-
         public float angleB = 180;
-        public float AngleB
-        {
-            get { return angleB; }
-            set
-            {
-                angleB = value;
-                MarkDirty();
-            }
-        }
-
         public float radius = 1;
-        public float Radius
-        {
-            get { return radius; }
-            set
-            {
-                radius = value;
-                MarkDirty();
-            }
-        }
-
         public int segments = 32;
-        public int Segments
-        {
-            get { return segments; }
-            set
-            {
-                segments = value;
-                MarkDirty();
-            }
-        }
 
         public override JobHandle PreTransformJobs(JobHandle inputDependencies)
         {
-            NativeArray<float3> positions = new NativeArray<float3>(segments + 1, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            float deltaAngle = angleB - angleA;
+            closeShape = math.abs(deltaAngle) % 360 == 0;
+
+            NativeArray<float3> positions = new NativeArray<float3>(segments + (closeShape ? 0 : 1), Allocator.TempJob);
             CalculateSegmentsJob calculateSegmentsJob = new CalculateSegmentsJob
             {
                 Right3 = Vector3.right,
                 AngleA = angleA,
-                AngleB = angleB,
+                DeltaAngle = deltaAngle,
+                Step = deltaAngle / segments,
                 Radius = radius,
                 Segments = segments,
                 Positions = positions
@@ -70,8 +35,12 @@ namespace ifelse.Shapes
             inputDependencies = calculateSegmentsJob.Schedule(positions.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
-            Points = Extensions.ToArray(ref positions);
+            if (positions.Length != points.Length)
+            {
+                points = new float3[positions.Length];
+            }
 
+            points = positions.ToArray();
             positions.Dispose();
 
             return base.PreTransformJobs(inputDependencies);
@@ -82,17 +51,16 @@ namespace ifelse.Shapes
         {
             [ReadOnly] public float3 Right3;
             [ReadOnly] public float AngleA;
-            [ReadOnly] public float AngleB;
+            [ReadOnly] public float DeltaAngle;
+            [ReadOnly] public float Step;
             [ReadOnly] public float Radius;
             [ReadOnly] public int Segments;
 
-            public NativeArray<float3> Positions;
+            [WriteOnly] public NativeArray<float3> Positions;
 
             public void Execute(int index)
             {
-                float deltaAngle = AngleB - AngleA;
-                float step = deltaAngle / Segments;
-                float angle = math.radians(AngleA + step * index);
+                float angle = math.radians(AngleA + Step * index);
                 quaternion rotation = quaternion.EulerXYZ(0, 0, angle);
 
                 Positions[index] = math.rotate(rotation, Right3) * Radius;

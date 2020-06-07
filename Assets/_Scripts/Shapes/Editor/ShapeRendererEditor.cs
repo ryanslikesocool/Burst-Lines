@@ -62,6 +62,18 @@ namespace ifelse.Shapes
 
             shapeList.DoLayoutList();
 
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+
+            if (GUILayout.Button("Mark All Dirty"))
+            {
+                foreach (ShapeSO shapeSO in shapeRenderer.shapes)
+                {
+                    if (shapeSO == null) { continue; }
+                    shapeSO.GetProps(out Shape shape);
+                    shape.MarkDirty();
+                }
+            }
+
             if (EditorGUI.EndChangeCheck())
             {
                 foreach (ShapeSO shapeSO in shapeRenderer.shapes)

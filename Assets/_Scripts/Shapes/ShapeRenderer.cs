@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
+using Unity.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -36,6 +37,11 @@ namespace ifelse.Shapes
         private void OnDisable()
         {
             ClearMeshRenderers();
+            foreach (ShapeSO shapeSO in shapes)
+            {
+                shapeSO.GetProps(out Shape shape);
+                shape.Clear();
+            }
         }
 
         private void OnRenderObject()
@@ -60,6 +66,8 @@ namespace ifelse.Shapes
 
                 if (!shape.IsDirty) { continue; }
 
+                shape.Clear();
+
                 inputDependencies = shape.PreTransformJobs(inputDependencies);
                 inputDependencies = shape.CalculateTransform(inputDependencies);
                 inputDependencies = shape.PostTransformJobs(inputDependencies);
@@ -79,21 +87,19 @@ namespace ifelse.Shapes
                     RenderImmediate();
                     break;
                 case RenderMode.Retained:
-                    RenderCached();
+                    RenderRetained();
                     break;
             }
         }
 
         private void ClearMeshRenderers()
         {
-            if (shapeRendererLink.Count > 0)
+            foreach (MeshFilter filter in shapeRendererLink.Values)
             {
-                foreach (MeshFilter filter in shapeRendererLink.Values)
-                {
-                    DestroyImmediate(filter.gameObject);
-                }
-                shapeRendererLink.Clear();
+                DestroyImmediate(filter.sharedMesh);
+                DestroyImmediate(filter.gameObject);
             }
+            shapeRendererLink.Clear();
         }
 
         private void RenderImmediate()
@@ -114,7 +120,7 @@ namespace ifelse.Shapes
             GL.PopMatrix();
         }
 
-        private void RenderCached()
+        private void RenderRetained()
         {
             if (retainedModePrefab == null) { return; }
 
@@ -124,7 +130,7 @@ namespace ifelse.Shapes
 
                 shapeSO.GetProps(out Shape shape);
 
-                Mesh mesh = shape.Cache();
+                Mesh mesh = shape.Retain();
 
                 if (!shapeRendererLink.ContainsKey(shapeSO))
                 {
@@ -134,7 +140,7 @@ namespace ifelse.Shapes
                 if (shapeRendererLink[shapeSO] == null)
                 {
                     shapeRendererLink[shapeSO] = Instantiate(retainedModePrefab);
-                    shapeRendererLink[shapeSO].hideFlags = HideFlags.DontSave;
+                    shapeRendererLink[shapeSO].gameObject.hideFlags = HideFlags.DontSave;
                     shapeRendererLink[shapeSO].sharedMesh = mesh;
                 }
             }

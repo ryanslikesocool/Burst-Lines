@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
+using Unity.Collections;
 
 namespace ifelse.Shapes
 {
@@ -13,26 +14,7 @@ namespace ifelse.Shapes
         public bool IsDirty { get; private set; }
 
         public Vector3 position;
-        public Vector3 Position
-        {
-            get { return position; }
-            set
-            {
-                position = value;
-                MarkDirty();
-            }
-        }
-
         public Vector3 eulerRotation;
-        public Vector3 EulerRotation
-        {
-            get { return eulerRotation; }
-            set
-            {
-                eulerRotation = value;
-                MarkDirty();
-            }
-        }
         public Quaternion Rotation
         {
             get { return Quaternion.Euler(eulerRotation); }
@@ -42,17 +24,7 @@ namespace ifelse.Shapes
                 MarkDirty();
             }
         }
-
         public Vector3 scale = Vector3.one;
-        public Vector3 Scale
-        {
-            get { return scale; }
-            set
-            {
-                scale = value;
-                MarkDirty();
-            }
-        }
 
         public void MarkDirty()
         {
@@ -64,8 +36,10 @@ namespace ifelse.Shapes
             IsDirty = false;
         }
 
+        public abstract void Clear();
+
         public abstract void Render();
-        public abstract Mesh Cache();
+        public abstract Mesh Retain();
 
         public abstract JobHandle CalculateTransform(JobHandle inputDependencies);
         public abstract JobHandle CalculateVertices(JobHandle inputDependencies);

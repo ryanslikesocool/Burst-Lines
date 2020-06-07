@@ -3,42 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
+using System.Runtime.CompilerServices;
 
 namespace ifelse.Shapes
 {
     public static class Extensions
     {
-        public const float EPSILON = 0.0001f;
+        public const float EPSILON = 0.000001f;
 
-        public static Vector3[] ToArray(ref NativeArray<float3> input)
-        {
-            Vector3[] result = new Vector3[input.Length];
-            for (int i = 0; i < input.Length; i++)
-            {
-                result[i] = input[i];
-            }
-            return result;
-        }
-
-        public static Vector3[] ToArray(ref NativeList<float3> input)
-        {
-            Vector3[] result = new Vector3[input.Length];
-            for (int i = 0; i < input.Length; i++)
-            {
-                result[i] = input[i];
-            }
-            return result;
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float AngleSigned(float3 lhs, float3 rhs, float3 normal)
         {
             return math.degrees(RadiansSigned(lhs, rhs, normal));
         }
 
-        /// <summary>
-        /// Determine the signed radians between two vectors, with normal 'n'
-        /// as the rotation axis.
-        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float RadiansSigned(float3 lhs, float3 rhs, float3 normal)
         {
             return math.atan2(
@@ -47,6 +26,7 @@ namespace ifelse.Shapes
             );
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Wrap(this int input, int min, int max, int iterations)
         {
             if (min >= max) { return input; }
@@ -62,36 +42,6 @@ namespace ifelse.Shapes
                 }
             }
             return input;
-        }
-
-        public static void ClearEmptyQuads(ref NativeArray<float3> quadArray)
-        {
-            if (quadArray.Length % 4 != 0)
-            {
-                Debug.LogWarning("Quad array is not divisible by 4!  Aborting");
-                return;
-            }
-
-            NativeList<float3> quads = new NativeList<float3>(quadArray.Length, Allocator.Temp);
-            for (int i = quadArray.Length - 1; i > -1; i -= 4)
-            {
-                if (!Approximately(quadArray[i], quadArray[i - 1])
-                 && !Approximately(quadArray[i], quadArray[i - 2])
-                 && !Approximately(quadArray[i], quadArray[i - 3])
-                 && !Approximately(quadArray[i - 1], quadArray[i - 2])
-                 && !Approximately(quadArray[i - 1], quadArray[i - 3])
-                 && !Approximately(quadArray[i - 2], quadArray[i - 3]))
-                {
-                    quads.Add(quadArray[i]);
-                    quads.Add(quadArray[i - 1]);
-                    quads.Add(quadArray[i - 2]);
-                    quads.Add(quadArray[i - 3]);
-                }
-            }
-
-            quadArray.Dispose();
-            quadArray = new NativeArray<float3>(quads, Allocator.TempJob);
-            quads.Dispose();
         }
 
         public static void RemoveQuadAtIndex(ref NativeArray<float3> vertexArray, int quadIndex)
@@ -170,6 +120,7 @@ namespace ifelse.Shapes
             return input;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Approximately(float3 a, float3 b)
         {
             if (math.distancesq(a, b) < EPSILON) { return true; }
