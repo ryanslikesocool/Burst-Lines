@@ -41,6 +41,8 @@ namespace ifelse.Shapes
         public abstract void Render();
         public abstract Mesh Retain();
 
+        public abstract JobHandle CalculateShape(JobHandle inputDependencies);
+
         public abstract JobHandle CalculateTransform(JobHandle inputDependencies);
         public abstract JobHandle CalculateVertices(JobHandle inputDependencies);
         public abstract void CalculateColors();

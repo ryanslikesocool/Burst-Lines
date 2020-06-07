@@ -151,6 +151,21 @@ namespace ifelse.Shapes
 
         #region Calculation
 
+        public override JobHandle CalculateShape(JobHandle inputDependencies)
+        {
+            Clear();
+
+            inputDependencies = PreTransformJobs(inputDependencies);
+            inputDependencies = CalculateTransform(inputDependencies);
+            inputDependencies = PostTransformJobs(inputDependencies);
+
+            inputDependencies = CalculateVertices(inputDependencies);
+
+            CalculateColors();
+
+            return inputDependencies;
+        }
+
         public override JobHandle CalculateTransform(JobHandle inputDependencies)
         {
             /*NativeArray<float3> positionsIn = new NativeArray<float3>(points, Allocator.TempJob);
