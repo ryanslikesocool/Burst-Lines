@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     public enum RendererType
     {

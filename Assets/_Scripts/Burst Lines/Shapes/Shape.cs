@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     [System.Serializable]
     public abstract class Shape

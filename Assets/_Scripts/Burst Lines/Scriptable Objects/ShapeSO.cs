@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     public abstract class ShapeSO : ScriptableObject
     {

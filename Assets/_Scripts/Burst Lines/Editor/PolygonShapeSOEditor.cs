@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     [CustomEditor(typeof(PolygonShapeSO))]
     public class PolygonShapeSOEditor : ShapeSOEditor

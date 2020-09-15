@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     public static class ShapeEditors
     {

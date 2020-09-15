@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     public abstract class ShapeSOEditor : Editor
     {

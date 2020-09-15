@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Burst;
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     [System.Serializable]
     public class PolygonShape : Shape

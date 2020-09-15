@@ -5,7 +5,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using System.Runtime.CompilerServices;
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     public static class Extensions
     {

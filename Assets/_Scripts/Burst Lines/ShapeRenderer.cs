@@ -7,7 +7,7 @@ using Unity.Collections;
 using UnityEditor;
 #endif
 
-namespace ifelse.Shapes
+namespace ifelse.BurstLines
 {
     [ExecuteInEditMode]
     public class ShapeRenderer : MonoBehaviour
