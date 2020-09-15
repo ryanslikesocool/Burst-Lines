@@ -29,8 +29,6 @@ MonoBehaviour:
       rgba: 4294955620
     - serializedVersion: 2
       rgba: 4294073023
-    - serializedVersion: 2
-      rgba: 4294935562
     gradient:
       serializedVersion: 2
       key0: {r: 1, g: 1, b: 1, a: 1}
@@ -63,17 +61,14 @@ MonoBehaviour:
     mesh: {fileID: 0}
     closeShape: 0
     points:
-    - x: 0.0625
-      y: 0.0625
+    - x: 0.1875
+      y: -0.25
+      z: 0
+    - x: 0.2
+      y: 0.2
       z: 0
     - x: -0.25
       y: 0.1875
-      z: 0
-    - x: 0.25
-      y: 0.25
-      z: 0
-    - x: 0.1875
-      y: -0.25
       z: 0
     billboardMethod: 0
     quadLineThickness: 0.025
