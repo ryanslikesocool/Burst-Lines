@@ -136,7 +136,7 @@ namespace BurstLines
 
         public static void MoveHandle(ShapeSO scriptableObject, Shape shape)
         {
-            Vector3 position = shape.position;
+            Vector3 position = shape.translation;
 
             EditorGUI.BeginChangeCheck();
 
@@ -144,7 +144,7 @@ namespace BurstLines
 
             if (EditorGUI.EndChangeCheck())
             {
-                shape.position = position;
+                shape.translation = position;
                 Undo.RegisterCompleteObjectUndo(scriptableObject, "Moved shape");
             }
         }
@@ -155,7 +155,7 @@ namespace BurstLines
 
             EditorGUI.BeginChangeCheck();
 
-            rotation = Handles.RotationHandle(rotation, shape.position);
+            rotation = Handles.RotationHandle(rotation, shape.translation);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -167,11 +167,11 @@ namespace BurstLines
         public static void ScaleHandle(ShapeSO scriptableObject, Shape shape)
         {
             Vector3 scale = shape.scale;
-            float magnitude = shape.scale.sqrMagnitude;
+            float magnitude = shape.scale.SquareMagnitude();
 
             EditorGUI.BeginChangeCheck();
 
-            scale = Handles.ScaleHandle(scale, shape.position, shape.Rotation, magnitude);
+            scale = Handles.ScaleHandle(scale, shape.translation, shape.Rotation, magnitude);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -182,7 +182,7 @@ namespace BurstLines
 
         public static void TransformHandle(ShapeSO scriptableObject, Shape shape)
         {
-            Vector3 position = shape.position;
+            Vector3 position = shape.translation;
             Quaternion rotation = shape.Rotation;
             Vector3 scale = shape.scale;
 
@@ -192,7 +192,7 @@ namespace BurstLines
 
             if (EditorGUI.EndChangeCheck())
             {
-                shape.position = position;
+                shape.translation = position;
                 shape.Rotation = rotation;
                 shape.scale = scale;
                 Undo.RegisterCompleteObjectUndo(scriptableObject, "Transformed shape");

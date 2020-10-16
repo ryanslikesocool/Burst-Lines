@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Collections;
 
 namespace BurstLines
 {
@@ -10,18 +12,18 @@ namespace BurstLines
 
         public bool IsDirty { get; private set; }
 
-        public Vector3 position;
-        public Vector3 eulerRotation;
-        public Quaternion Rotation
+        public float3 translation;
+        public float3 eulerRotation;
+        public quaternion Rotation
         {
             get { return Quaternion.Euler(eulerRotation); }
             set
             {
-                eulerRotation = value.eulerAngles;
+                eulerRotation = value.EulerAngles();
                 MarkDirty();
             }
         }
-        public Vector3 scale = Vector3.one;
+        public float3 scale = Vector3.one;
 
         public void MarkDirty()
         {
@@ -40,8 +42,8 @@ namespace BurstLines
 
         public abstract JobHandle CalculateShape(JobHandle inputDependencies);
 
-        public abstract JobHandle CalculateTransform(JobHandle inputDependencies);
-        public abstract JobHandle CalculateVertices(JobHandle inputDependencies);
+        public abstract JobHandle CalculateTransform(JobHandle inputDependencies, ref float3[] points);
+        public abstract JobHandle CalculateVertices(JobHandle inputDependencies, float3[] points);
         public abstract void CalculateColors();
 
         public virtual JobHandle PreTransformJobs(JobHandle inputDependencies) { return inputDependencies; }

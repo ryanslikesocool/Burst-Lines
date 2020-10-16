@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
+using Unity.Mathematics;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -18,9 +19,10 @@ namespace BurstLines
         public Material immediateModeMaterial = null;
         public MeshFilter retainedModePrefab = null;
 
-        public List<ShapeSO> shapes = null;
+        public List<ShapeSO> shapes = new List<ShapeSO>();
 
         private Dictionary<ShapeSO, MeshFilter> shapeRendererLink = new Dictionary<ShapeSO, MeshFilter>();
+        private Dictionary<ShapeSO, Mesh> shapeMeshLink = new Dictionary<ShapeSO, Mesh>();
 
         private void OnEnable()
         {
@@ -66,13 +68,7 @@ namespace BurstLines
 
                 shape.Clear();
 
-                inputDependencies = shape.PreTransformJobs(inputDependencies);
-                inputDependencies = shape.CalculateTransform(inputDependencies);
-                inputDependencies = shape.PostTransformJobs(inputDependencies);
-
-                inputDependencies = shape.CalculateVertices(inputDependencies);
-
-                shape.CalculateColors();
+                inputDependencies = shape.CalculateShape(inputDependencies);
 
                 shape.ClearDirty();
             }
@@ -86,6 +82,9 @@ namespace BurstLines
                     break;
                 case RenderMode.Retained:
                     RenderRetained();
+                    break;
+                case RenderMode.CodeAccess:
+                    RenderCodeAccess();
                     break;
             }
         }
@@ -140,6 +139,23 @@ namespace BurstLines
                     shapeRendererLink[shapeSO] = Instantiate(retainedModePrefab);
                     shapeRendererLink[shapeSO].gameObject.hideFlags = HideFlags.DontSave;
                     shapeRendererLink[shapeSO].sharedMesh = mesh;
+                }
+            }
+        }
+
+        private void RenderCodeAccess()
+        {
+            foreach (ShapeSO shapeSO in shapes)
+            {
+                if (shapeSO == null) { continue; }
+
+                shapeSO.GetProps(out Shape shape);
+
+                Mesh mesh = shape.Retain();
+
+                if (!shapeMeshLink.ContainsKey(shapeSO))
+                {
+                    shapeMeshLink.Add(shapeSO, mesh);
                 }
             }
         }

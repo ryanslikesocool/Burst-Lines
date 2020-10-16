@@ -19,7 +19,7 @@ namespace BurstLines
 
             shape = serializedObject.FindProperty("shape");
 
-            position = shape.FindPropertyRelative("position");
+            position = shape.FindPropertyRelative("translation");
             eulerRotation = shape.FindPropertyRelative("eulerRotation");
             scale = shape.FindPropertyRelative("scale");
         }

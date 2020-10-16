@@ -9,7 +9,8 @@
     public enum RenderMode
     {
         Immediate,
-        Retained
+        Retained,
+        CodeAccess
     }
 
     public enum BillboardMethod

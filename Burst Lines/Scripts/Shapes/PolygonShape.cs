@@ -14,10 +14,10 @@ namespace BurstLines
         public RendererType rendererType;
         public ColorMode colorMode = ColorMode.Solid;
         public BlendMode blendMode = BlendMode.Mix;
-        public Color32 color = new Color32(0, 0, 0, 255);
-        public Color32[] colors = new Color32[0];
-        public Gradient gradient = new Gradient();
-        protected Color32[] vertexColors;
+        [ColorUsage(true, true)] public Color color = new Color(0, 0, 0, 255);
+        [ColorUsage(true, true)] public Color[] colors = new Color[0];
+        [GradientUsage(true)] public Gradient gradient = new Gradient();
+        protected Color[] vertexColors;
         public Mesh mesh;
         public bool closeShape = true;
         public float3[] points = null;
@@ -153,54 +153,51 @@ namespace BurstLines
         {
             Clear();
 
+            float3[] points = this.points;
+
             inputDependencies = PreTransformJobs(inputDependencies);
-            inputDependencies = CalculateTransform(inputDependencies);
+            inputDependencies = CalculateTransform(inputDependencies, ref points);
             inputDependencies = PostTransformJobs(inputDependencies);
 
-            inputDependencies = CalculateVertices(inputDependencies);
+            inputDependencies = CalculateVertices(inputDependencies, points);
 
             CalculateColors();
 
             return inputDependencies;
         }
 
-        public override JobHandle CalculateTransform(JobHandle inputDependencies)
+        public override JobHandle CalculateTransform(JobHandle inputDependencies, ref float3[] points)
         {
-            /*NativeArray<float3> positionsIn = new NativeArray<float3>(points, Allocator.TempJob);
+            float4x4 transformMatrix = float4x4.TRS(translation, Rotation, scale);
+            NativeArray<float3> positionsIn = new NativeArray<float3>(points, Allocator.TempJob);
             CalculateTransformJob calculateTransformJob = new CalculateTransformJob
             {
-                Translation = position,
-                Rotation = Rotation,
-                Scale = scale,
+                TransformMatrix = transformMatrix,
                 Positions = positionsIn,
             };
             inputDependencies = calculateTransformJob.Schedule(points.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
             points = positionsIn.ToArray();
-            positionsIn.Dispose();*/
+            positionsIn.Dispose();
 
             return inputDependencies;
         }
 
-        /*[BurstCompile]
+        [BurstCompile]
         private struct CalculateTransformJob : IJobParallelFor
         {
-            [ReadOnly] public float3 Translation;
-            [ReadOnly] public quaternion Rotation;
-            [ReadOnly] public float3 Scale;
+            [ReadOnly] public float4x4 TransformMatrix;
 
             public NativeArray<float3> Positions;
 
             public void Execute(int index)
             {
-                Positions[index] *= Scale;
-                Positions[index] = math.rotate(Rotation, Positions[index]);
-                Positions[index] += Translation;
+                Positions[index] = math.transform(TransformMatrix, Positions[index]);
             }
-        }*/
+        }
 
-        public override JobHandle CalculateVertices(JobHandle inputDependencies)
+        public override JobHandle CalculateVertices(JobHandle inputDependencies, float3[] points)
         {
             if ((closeShape && points.Length < 3) || (!closeShape && points.Length < 2)) { return inputDependencies; }
 
@@ -273,7 +270,7 @@ namespace BurstLines
 
         public override void CalculateColors()
         {
-            if (colors == null || colors.Length == 0) { colors = new Color32[] { color }; }
+            if (colors == null || colors.Length == 0) { colors = new Color[] { color }; }
 
             int pointCount = points.Length;
             int vertexCount = pointsToRender.Length;
@@ -281,7 +278,7 @@ namespace BurstLines
             switch (colorMode)
             {
                 case ColorMode.Solid:
-                    colors = new Color32[vertexCount];
+                    colors = new Color[vertexCount];
                     for (int i = 0; i < vertexCount; i++)
                     {
                         colors[i] = color;
@@ -291,7 +288,7 @@ namespace BurstLines
                 case ColorMode.PerPoint:
                     if (colors.Length != pointCount)
                     {
-                        Color32[] pointColors = new Color32[pointCount];
+                        Color[] pointColors = new Color[pointCount];
                         if (colors.Length < pointCount)
                         {
                             for (int i = 0; i < colors.Length; i++)
@@ -313,7 +310,7 @@ namespace BurstLines
                         colors = pointColors;
                     }
 
-                    vertexColors = new Color32[vertexCount];
+                    vertexColors = new Color[vertexCount];
                     if (rendererType == RendererType.QuadLine)
                     {
                         for (int i = 0; i < colors.Length; i++)
@@ -340,7 +337,7 @@ namespace BurstLines
                 case ColorMode.PerVertex:
                     if (colors.Length != vertexColors.Length)
                     {
-                        Color32[] localVertexColors = new Color32[vertexCount];
+                        Color[] localVertexColors = new Color[vertexCount];
                         if (colors.Length < vertexCount)
                         {
                             for (int i = 0; i < colors.Length; i++)
@@ -365,7 +362,7 @@ namespace BurstLines
                     vertexColors = colors;
                     break;
                 case ColorMode.Gradient:
-                    vertexColors = new Color32[vertexCount];
+                    vertexColors = new Color[vertexCount];
                     float step = 1f / points.Length;
                     if (rendererType == RendererType.QuadLine)
                     {
@@ -398,7 +395,7 @@ namespace BurstLines
              && blendMode == BlendMode.Mix)
             {
                 int offset = rendererType == RendererType.PixelLine ? 1 : 2;
-                Color32[] remappedColors = new Color32[vertexColors.Length];
+                Color[] remappedColors = new Color[vertexColors.Length];
                 for (int i = 0; i < vertexColors.Length; i++)
                 {
                     remappedColors[i] = vertexColors[(i + offset).Wrap(0, vertexColors.Length, 1)];

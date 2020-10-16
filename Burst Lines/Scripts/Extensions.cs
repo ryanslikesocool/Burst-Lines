@@ -42,6 +42,7 @@ namespace BurstLines
             return input;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveQuadAtIndex(ref NativeArray<float3> vertexArray, int quadIndex)
         {
             if (vertexArray.Length % 4 != 0) { return; }
@@ -63,6 +64,7 @@ namespace BurstLines
             vertexArray = new NativeArray<float3>(vertices.ToArray(), Allocator.TempJob);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveLineAtIndex(ref NativeArray<float3> vertexArray, int lineIndex)
         {
             if (vertexArray.Length % 2 != 0) { return; }
@@ -82,6 +84,7 @@ namespace BurstLines
             vertexArray = new NativeArray<float3>(vertices.ToArray(), Allocator.TempJob);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ClampOutOfRange(this float input, float bigNumber, float max)
         {
             if (math.abs(input) >= bigNumber)
@@ -91,6 +94,7 @@ namespace BurstLines
             return math.abs(input) < bigNumber ? input : 1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float AddDeadzone(this float input, float deadzone, float replacement = 0)
         {
             deadzone = math.abs(deadzone);
@@ -110,6 +114,7 @@ namespace BurstLines
             return input;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float3 AddDeadzone(this float3 input, float deadzone, float replacement = 0)
         {
             input.x = input.x.AddDeadzone(deadzone);
@@ -123,6 +128,45 @@ namespace BurstLines
         {
             if (math.distancesq(a, b) < EPSILON) { return true; }
             return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float SquareMagnitude(this float3 point)
+        {
+            return point.x * point.x + point.y * point.y + point.z * point.z;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Magnitude(this float3 point)
+        {
+            float sqMag = point.SquareMagnitude();
+            return sqMag > 0 ? math.sqrt(sqMag) : 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 EulerAngles(this quaternion q)
+        {
+            float3 angles;
+
+            float sinr_cosp = 2 * (q.value.w * q.value.x + q.value.y * q.value.z);
+            float cosr_cosp = 1 - 2 * (q.value.x * q.value.x + q.value.y * q.value.y);
+            angles.x = math.atan2(sinr_cosp, cosr_cosp);
+
+            float sinp = 2 * (q.value.w * q.value.y - q.value.z * q.value.x);
+            if (math.abs(sinp) >= 1)
+            {
+                angles.y = math.abs(math.PI * 0.5f) * math.sign(sinp);
+            }
+            else
+            {
+                angles.y = math.asin(sinp);
+            }
+
+            float siny_cosp = 2 * (q.value.w * q.value.z + q.value.x * q.value.y);
+            float cosy_cosp = 1 - 2 * (q.value.y * q.value.y + q.value.z * q.value.z);
+            angles.z = math.atan2(siny_cosp, cosy_cosp);
+
+            return angles;
         }
     }
 }
