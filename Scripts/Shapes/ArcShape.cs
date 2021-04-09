@@ -1,4 +1,6 @@
-﻿using Unity.Jobs;
+﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
+
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Burst;
 using Unity.Mathematics;

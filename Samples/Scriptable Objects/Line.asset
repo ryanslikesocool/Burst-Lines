@@ -13,24 +13,27 @@ MonoBehaviour:
   m_Name: Line
   m_EditorClassIdentifier: 
   shape:
-    position: {x: 0, y: 0, z: 0}
-    eulerRotation: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
+    translation:
+      x: 0
+      y: 0
+      z: 0
+    eulerRotation:
+      x: 0
+      y: 0
+      z: 0
+    scale:
+      x: 1
+      y: 1
+      z: 1
     rendererType: 0
     colorMode: 1
     blendMode: 1
-    color:
-      serializedVersion: 2
-      rgba: 4294967295
+    color: {r: 0, g: 0, b: 0, a: 255}
     colors:
-    - serializedVersion: 2
-      rgba: 4284430335
-    - serializedVersion: 2
-      rgba: 4294955620
-    - serializedVersion: 2
-      rgba: 4294073023
-    - serializedVersion: 2
-      rgba: 4294935562
+    - {r: 0.5019608, g: 0.5019608, b: 95.87451, a: 1}
+    - {r: 0.015686275, g: 0.015686275, b: 2.9960785, a: 1}
+    - {r: 0, g: 2, b: 0, a: 1}
+    - {r: 1.7814789, g: 0.009327115, b: 0.009327115, a: 1}
     gradient:
       serializedVersion: 2
       key0: {r: 1, g: 1, b: 1, a: 1}

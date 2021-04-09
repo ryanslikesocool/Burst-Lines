@@ -1,8 +1,11 @@
-﻿using UnityEngine;
+﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
+
+#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace BurstLines
+namespace BurstLines.Editors
 {
     [CustomEditor(typeof(ShapeRenderer))]
     public class ShapeRendererEditor : Editor
@@ -85,3 +88,4 @@ namespace BurstLines
         }
     }
 }
+#endif

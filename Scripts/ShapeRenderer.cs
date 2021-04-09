@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
+
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Mathematics;

@@ -1,4 +1,6 @@
-﻿namespace BurstLines
+﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
+
+namespace BurstLines
 {
     public enum RendererType
     {

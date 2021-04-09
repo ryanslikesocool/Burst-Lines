@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
+
+using UnityEngine;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Collections;

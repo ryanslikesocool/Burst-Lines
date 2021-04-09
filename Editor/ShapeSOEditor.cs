@@ -1,6 +1,9 @@
-﻿using UnityEditor;
+﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
 
-namespace BurstLines
+#if UNITY_EDITOR
+using UnityEditor;
+
+namespace BurstLines.Editors
 {
     public abstract class ShapeSOEditor : Editor
     {
@@ -32,3 +35,4 @@ namespace BurstLines
         public abstract void DuringSceneGUI(SceneView sceneView);
     }
 }
+#endif

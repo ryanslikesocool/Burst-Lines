@@ -1,18 +1,19 @@
-﻿using UnityEngine;
+﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
+
+#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace BurstLines
+namespace BurstLines.Editors
 {
-    [CustomEditor(typeof(ArcShapeSO))]
-    public class ArcShapeSOEditor : ShapeSOEditor
+    [CustomEditor(typeof(PolygonShapeSO))]
+    public class PolygonShapeSOEditor : ShapeSOEditor
     {
-        private ArcShape arcShape;
+        private PolygonShape polygonShape;
 
-        private SerializedProperty angleA;
-        private SerializedProperty angleB;
-        private SerializedProperty radius;
-        private SerializedProperty segments;
+        private SerializedProperty closeShape;
+        private SerializedProperty points;
 
         private SerializedProperty colorMode;
         private SerializedProperty blendMode;
@@ -24,18 +25,22 @@ namespace BurstLines
         private SerializedProperty quadLineAlignment;
         private SerializedProperty quadLineThickness;
 
+        private SerializedProperty capA;
+        private SerializedProperty capDetailA;
+        private SerializedProperty capB;
+        private SerializedProperty capDetailB;
+
+        private ReorderableList pointsList;
         private ReorderableList colorsList;
 
         public override void OnEnable()
         {
             base.OnEnable();
 
-            arcShape = ((ArcShapeSO)scriptableObject).shape;
+            polygonShape = ((PolygonShapeSO)scriptableObject).shape;
 
-            angleA = shape.FindPropertyRelative("angleA");
-            angleB = shape.FindPropertyRelative("angleB");
-            radius = shape.FindPropertyRelative("radius");
-            segments = shape.FindPropertyRelative("segments");
+            closeShape = shape.FindPropertyRelative("closeShape");
+            points = shape.FindPropertyRelative("points");
 
             colorMode = shape.FindPropertyRelative("colorMode");
             blendMode = shape.FindPropertyRelative("blendMode");
@@ -47,6 +52,25 @@ namespace BurstLines
             quadLineAlignment = shape.FindPropertyRelative("quadLineAlignment");
             quadLineThickness = shape.FindPropertyRelative("quadLineThickness");
 
+            capA = shape.FindPropertyRelative("capA");
+            capDetailA = shape.FindPropertyRelative("capDetailA");
+            capB = shape.FindPropertyRelative("capB");
+            capDetailB = shape.FindPropertyRelative("capDetailB");
+
+            pointsList = new ReorderableList(serializedObject, points, true, true, true, true)
+            {
+                drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, $"Points ({points.arraySize})"); },
+                drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+                {
+                    rect.y += 2;
+                    rect.height = EditorGUIUtility.singleLineHeight;
+                    EditorGUI.PropertyField(rect, points.GetArrayElementAtIndex(index));
+                    rect.y += 2;
+                },
+                onReorderCallback = (ReorderableList list) => { polygonShape.MarkDirty(); }
+            };
+            pointsList.list = polygonShape.points;
+
             colorsList = new ReorderableList(serializedObject, colors, true, true, true, true)
             {
                 drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, $"Colors ({colors.arraySize})"); },
@@ -57,9 +81,9 @@ namespace BurstLines
                     EditorGUI.PropertyField(rect, colors.GetArrayElementAtIndex(index));
                     rect.y += 2;
                 },
-                onReorderCallback = (ReorderableList list) => { arcShape.MarkDirty(); }
+                onReorderCallback = (ReorderableList list) => { polygonShape.MarkDirty(); }
             };
-            colorsList.list = arcShape.colors;
+            colorsList.list = polygonShape.colors;
 
             SceneView.duringSceneGui += DuringSceneGUI;
         }
@@ -77,12 +101,15 @@ namespace BurstLines
 
             base.OnInspectorGUI();
 
-            ShapeEditors.ArcShapeEditor(angleA, angleB, radius, segments);
+            ShapeEditors.PolygonShapeEditor(closeShape, pointsList, polygonShape);
+
             ShapeEditors.RendererEditor(colorMode, blendMode, color, colorsList, gradient, rendererType, billboardMethod, quadLineAlignment, quadLineThickness);
+
+            ShapeEditors.CapEditor(capA, capDetailA, capB, capDetailB, (RendererType)rendererType.enumValueIndex == RendererType.PixelLine);
 
             if (EditorGUI.EndChangeCheck())
             {
-                arcShape.MarkDirty();
+                polygonShape.MarkDirty();
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -90,7 +117,8 @@ namespace BurstLines
 
         public override void DuringSceneGUI(SceneView sceneView)
         {
-            ShapeEditors.DrawHandles(scriptableObject, arcShape, Tools.current);
+            ShapeEditors.DrawHandles(scriptableObject, polygonShape, Tools.current);
         }
     }
 }
+#endif
