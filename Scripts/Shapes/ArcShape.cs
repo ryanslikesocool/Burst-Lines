@@ -1,5 +1,6 @@
 ﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
 
+using System;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Burst;
@@ -8,7 +9,7 @@ using Unity.Collections;
 
 namespace BurstLines
 {
-    [System.Serializable]
+    [Serializable]
     public class ArcShape : PolygonShape
     {
         public float angleA = -180;

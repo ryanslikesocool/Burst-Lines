@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
 
@@ -137,7 +138,7 @@ namespace BurstLines
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float3 EulerAngles(this quaternion q)
+        public static float3 toEulerAngles(this quaternion q)
         {
             float3 angles;
 
@@ -167,6 +168,34 @@ namespace BurstLines
             foreach (T item in collection)
             {
                 action(item);
+            }
+        }
+
+        public static T ValidateReference<T>(this MonoBehaviour sender, T component) where T : Component
+        {
+            if (component == null)
+            {
+                component = sender.GetComponentInChildren<T>();
+                if (component == null)
+                {
+                    component = sender.gameObject.AddComponent<T>();
+                }
+            }
+            return component;
+        }
+
+        public static void DestroySafe(UnityEngine.Object @object)
+        {
+            if (@object != null)
+            {
+                if (Application.isPlaying)
+                {
+                    GameObject.Destroy(@object);
+                }
+                else
+                {
+                    GameObject.DestroyImmediate(@object);
+                }
             }
         }
     }

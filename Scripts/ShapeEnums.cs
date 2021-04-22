@@ -2,6 +2,12 @@
 
 namespace BurstLines
 {
+    public enum ShapeType
+    {
+        Polygon,
+        Arc
+    }
+
     public enum RendererType
     {
         PixelLine,

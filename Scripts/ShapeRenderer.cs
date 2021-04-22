@@ -16,25 +16,39 @@ namespace BurstLines
 #if UNITY_EDITOR
         public bool renderInEditMode = true;
 #endif
+        public ShapeType shapeType = ShapeType.Polygon;
         public RenderMode renderMode = RenderMode.Immediate;
 
+        public Shape shape = new PolygonShape();
+
+        private new MeshRenderer renderer = null;
+        private MeshFilter filter = null;
+
+        private Mesh mesh;
+        public Mesh Mesh
+        {
+            get => mesh;
+            set
+            {
+                mesh = value;
+                if (filter != null)
+                {
+                    filter.sharedMesh = mesh;
+                }
+            }
+        }
+
         public Material immediateModeMaterial = null;
-        public MeshFilter retainedModePrefab = null;
-
-        public List<ShapeSO> shapes = new List<ShapeSO>();
-
-        private Dictionary<ShapeSO, MeshFilter> shapeRendererLink = new Dictionary<ShapeSO, MeshFilter>();
-        private Dictionary<ShapeSO, Mesh> shapeMeshLink = new Dictionary<ShapeSO, Mesh>();
 
         private void OnEnable()
         {
-            shapes.ForEach(s => s?.Shape.MarkDirty());
+            shape?.MarkDirty();
         }
 
         private void OnDisable()
         {
-            ClearMeshRenderers();
-            shapes.ForEach(s => s?.Shape.Clear());
+            DestroyMesh();
+            shape?.Clear();
         }
 
         private void OnRenderObject()
@@ -42,35 +56,26 @@ namespace BurstLines
 #if UNITY_EDITOR
             if (!EditorApplication.isPlaying && !renderInEditMode)
             {
-                ClearMeshRenderers();
+                DestroyMesh();
                 return;
             }
 #endif
-            if (shapes == null || shapes.Count == 0
-             || (renderMode == RenderMode.Immediate && immediateModeMaterial == null)
-             || (renderMode == RenderMode.Retained && retainedModePrefab == null)) { return; }
+            if (shape == null
+             || (renderMode == RenderMode.Immediate && immediateModeMaterial == null)) { return; }
 
             JobHandle inputDependencies = new JobHandle();
-            foreach (ShapeSO shapeSO in shapes)
-            {
-                if (shapeSO == null) { continue; }
 
-                Shape shape = shapeSO.Shape;
+            if (!shape.IsDirty) { return; }
+            shape.Clear();
+            inputDependencies = shape.CalculateShape(inputDependencies);
+            shape.ClearDirty();
 
-                if (!shape.IsDirty) { continue; }
-
-                shape.Clear();
-
-                inputDependencies = shape.CalculateShape(inputDependencies);
-
-                shape.ClearDirty();
-            }
             inputDependencies.Complete();
 
             switch (renderMode)
             {
                 case RenderMode.Immediate:
-                    ClearMeshRenderers();
+                    DestroyMesh();
                     RenderImmediate();
                     break;
                 case RenderMode.Retained:
@@ -82,14 +87,17 @@ namespace BurstLines
             }
         }
 
-        private void ClearMeshRenderers()
+        private void DestroyMesh()
         {
-            foreach (MeshFilter filter in shapeRendererLink.Values)
+            if (filter != null)
             {
-                DestroyImmediate(filter.sharedMesh);
-                DestroyImmediate(filter.gameObject);
+                Extensions.DestroySafe(filter.mesh);
+                Extensions.DestroySafe(filter);
             }
-            shapeRendererLink.Clear();
+            if (renderer != null)
+            {
+                Extensions.DestroySafe(renderer);
+            }
         }
 
         private void RenderImmediate()
@@ -98,50 +106,41 @@ namespace BurstLines
             GL.PushMatrix();
             GL.MultMatrix(transform.localToWorldMatrix);
 
-            shapes.ForEach(s => s?.Shape.Render());
+            shape?.Render();
 
             GL.PopMatrix();
         }
 
         private void RenderRetained()
         {
-            if (retainedModePrefab == null) { return; }
+            if (shape == null) { return; }
 
-            foreach (ShapeSO shapeSO in shapes)
-            {
-                if (shapeSO == null) { continue; }
+            renderer = this.ValidateReference(renderer);
+            filter = this.ValidateReference(filter);
+            filter.hideFlags = HideFlags.DontSave;
 
-                Shape shape = shapeSO.Shape;
-
-                Mesh mesh = shape.Retain();
-
-                if (!shapeRendererLink.ContainsKey(shapeSO))
-                {
-                    shapeRendererLink.Add(shapeSO, null);
-                }
-
-                if (shapeRendererLink[shapeSO] == null)
-                {
-                    shapeRendererLink[shapeSO] = Instantiate(retainedModePrefab);
-                    shapeRendererLink[shapeSO].gameObject.hideFlags = HideFlags.DontSave;
-                    shapeRendererLink[shapeSO].sharedMesh = mesh;
-                }
-            }
+            Mesh = shape.Retain();
         }
 
         private void RenderCodeAccess()
         {
-            foreach (ShapeSO shapeSO in shapes)
+            if (shape == null) { return; }
+
+            Mesh = shape.Retain();
+        }
+
+        public void MarkDirty(ShapeType oldShapeType, bool force = false)
+        {
+            if (oldShapeType != shapeType || force)
             {
-                if (shapeSO == null) { continue; }
-
-                Shape shape = shapeSO.Shape;
-
-                Mesh mesh = shape.Retain();
-
-                if (!shapeMeshLink.ContainsKey(shapeSO))
+                switch (shapeType)
                 {
-                    shapeMeshLink.Add(shapeSO, mesh);
+                    case ShapeType.Polygon:
+                        shape = new PolygonShape();
+                        break;
+                    case ShapeType.Arc:
+                        shape = new ArcShape();
+                        break;
                 }
             }
         }

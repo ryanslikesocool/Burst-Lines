@@ -7,39 +7,39 @@ using UnityEditorInternal;
 
 namespace BurstLines.Editors
 {
-    [CustomEditor(typeof(ShapeRenderer))]
+    //[CustomEditor(typeof(ShapeRenderer))]
     public class ShapeRendererEditor : Editor
     {
-        private ShapeRenderer shapeRenderer;
+        protected ShapeRenderer shapeRenderer;
 
+        protected SerializedProperty shapeType;
         protected SerializedProperty renderMode;
+        protected SerializedProperty shape;
         protected SerializedProperty immediateModeMaterial;
-        protected SerializedProperty retainedModePrefab;
-        protected SerializedProperty shapes;
 
-        protected ReorderableList shapeList;
+        private ShapeEditor shapeEditor = null;
 
-        public virtual void OnEnable()
+        private void OnEnable()
         {
             shapeRenderer = (ShapeRenderer)target;
 
-            renderMode = serializedObject.FindProperty("renderMode");
-            immediateModeMaterial = serializedObject.FindProperty("immediateModeMaterial");
-            retainedModePrefab = serializedObject.FindProperty("retainedModePrefab");
-            shapes = serializedObject.FindProperty("shapes");
-
-            shapeList = new ReorderableList(serializedObject, shapes, true, true, true, true)
+            if (shapeRenderer.shape == null)
             {
-                drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, $"Shapes ({shapes.arraySize})"); },
-                drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
-                {
-                    rect.y += 2;
-                    rect.height = EditorGUIUtility.singleLineHeight;
-                    EditorGUI.PropertyField(rect, shapes.GetArrayElementAtIndex(index));
-                    rect.y += 2;
-                }
-            };
-            shapeList.list = shapeRenderer.shapes;
+                shapeRenderer.MarkDirty(shapeRenderer.shapeType, true);
+            }
+
+            shapeType = serializedObject.FindProperty("shapeType");
+            renderMode = serializedObject.FindProperty("renderMode");
+            shape = serializedObject.FindProperty("shape");
+            immediateModeMaterial = serializedObject.FindProperty("immediateModeMaterial");
+
+            ChangeShapeEditor();
+            shapeEditor.OnEnable(shapeRenderer.shape);
+        }
+
+        private void OnDisable()
+        {
+            shapeEditor.OnDisable();
         }
 
         public override void OnInspectorGUI()
@@ -47,34 +47,50 @@ namespace BurstLines.Editors
             serializedObject.Update();
             EditorGUI.BeginChangeCheck();
 
+            ShapeType oldShapeType = shapeRenderer.shapeType;
+
+            EditorGUILayout.PropertyField(shapeType);
             EditorGUILayout.PropertyField(renderMode);
             EditorGUI.indentLevel++;
             if (shapeRenderer.renderMode == RenderMode.Immediate)
             {
                 EditorGUILayout.PropertyField(immediateModeMaterial);
             }
-            else
-            {
-                EditorGUILayout.PropertyField(retainedModePrefab);
-            }
             EditorGUI.indentLevel--;
-
-            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 0.5f);
-
-            shapeList.DoLayoutList();
 
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
 
+            shapeEditor.OnInspectorGUI();
+
             if (GUILayout.Button("Mark All Dirty"))
             {
-                shapeRenderer.shapes.ForEach(s => s?.Shape.MarkDirty());
+                shapeRenderer.shape?.MarkDirty();
             }
 
             if (EditorGUI.EndChangeCheck())
             {
-                shapeRenderer.shapes.ForEach(s => s?.Shape.MarkDirty());
+                shapeRenderer.shape?.MarkDirty();
             }
             serializedObject.ApplyModifiedProperties();
+
+            if (oldShapeType != shapeRenderer.shapeType)
+            {
+                ChangeShapeEditor();
+                shapeRenderer.MarkDirty(oldShapeType);
+            }
+        }
+
+        private void ChangeShapeEditor()
+        {
+            switch (shapeRenderer.shapeType)
+            {
+                case ShapeType.Polygon:
+                    shapeEditor = new PolygonShapeEditor(shapeRenderer, shape);
+                    break;
+                case ShapeType.Arc:
+                    shapeEditor = new ArcShapeEditor(shapeRenderer, shape);
+                    break;
+            }
         }
     }
 }

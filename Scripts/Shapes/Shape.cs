@@ -1,5 +1,6 @@
 ﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
 
+using System;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -7,19 +8,19 @@ using Unity.Collections;
 
 namespace BurstLines
 {
-    [System.Serializable]
-    public abstract class Shape
+    [Serializable]
+    public class Shape
     {
         public bool IsDirty { get; private set; }
 
         public float3 translation;
-        public float3 eulerRotation;
+        public float3 rotation;
         public quaternion Rotation
         {
-            get => Quaternion.Euler(eulerRotation);
+            get => quaternion.Euler(rotation);
             set
             {
-                eulerRotation = value.EulerAngles();
+                rotation = value.toEulerAngles();
                 MarkDirty();
             }
         }
@@ -35,16 +36,16 @@ namespace BurstLines
             IsDirty = false;
         }
 
-        public abstract void Clear();
+        public virtual void Clear() { throw new System.NotImplementedException(); }
 
-        public abstract void Render();
-        public abstract Mesh Retain();
+        public virtual void Render() { throw new System.NotImplementedException(); }
+        public virtual Mesh Retain() { throw new System.NotImplementedException(); }
 
-        public abstract JobHandle CalculateShape(JobHandle inputDependencies);
+        public virtual JobHandle CalculateShape(JobHandle inputDependencies) { throw new System.NotImplementedException(); }
 
-        public abstract JobHandle CalculateTransform(JobHandle inputDependencies, ref float3[] points);
-        public abstract JobHandle CalculateVertices(JobHandle inputDependencies, float3[] points);
-        public abstract void CalculateColors();
+        public virtual JobHandle CalculateTransform(JobHandle inputDependencies, ref float3[] points) { throw new System.NotImplementedException(); }
+        public virtual JobHandle CalculateVertices(JobHandle inputDependencies, float3[] points) { throw new System.NotImplementedException(); }
+        public virtual void CalculateColors() { throw new System.NotImplementedException(); }
 
         public virtual JobHandle PreTransformJobs(JobHandle inputDependencies) { return inputDependencies; }
         public virtual JobHandle PostTransformJobs(JobHandle inputDependencies) { return inputDependencies; }
