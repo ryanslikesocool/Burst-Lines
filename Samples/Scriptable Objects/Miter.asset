@@ -12,23 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10b19fe29beee4f958e922c7aaeca5f3, type: 3}
   m_Name: Miter
   m_EditorClassIdentifier: 
+  material: {fileID: 0}
   shape:
-    position: {x: 0, y: 0, z: 0}
-    eulerRotation: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
+    translation:
+      x: 0
+      y: 0
+      z: 0
+    eulerRotation:
+      x: 0
+      y: 0
+      z: 0
+    scale:
+      x: 1
+      y: 1
+      z: 1
     rendererType: 1
     colorMode: 1
     blendMode: 1
-    color:
-      serializedVersion: 2
-      rgba: 4294967295
+    color: {r: 0, g: 0, b: 0, a: 255}
     colors:
-    - serializedVersion: 2
-      rgba: 4284430335
-    - serializedVersion: 2
-      rgba: 4294955620
-    - serializedVersion: 2
-      rgba: 4294073023
+    - {r: 0.03922, g: 0.51765, b: 1, a: 1}
+    - {r: 1, g: 0.27059, b: 0.22745, a: 1}
+    - {r: 0.39216, g: 0.82353, b: 1, a: 1}
     gradient:
       serializedVersion: 2
       key0: {r: 1, g: 1, b: 1, a: 1}

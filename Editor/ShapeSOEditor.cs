@@ -16,7 +16,7 @@ namespace BurstLines.Editors
         protected SerializedProperty eulerRotation;
         protected SerializedProperty scale;
 
-        public virtual void OnEnable()
+        protected virtual void OnEnable()
         {
             scriptableObject = (ShapeSO)target;
 
@@ -25,6 +25,13 @@ namespace BurstLines.Editors
             position = shape.FindPropertyRelative("translation");
             eulerRotation = shape.FindPropertyRelative("eulerRotation");
             scale = shape.FindPropertyRelative("scale");
+
+            Undo.undoRedoPerformed += MarkDirty;
+        }
+
+        protected virtual void OnDisable()
+        {
+            Undo.undoRedoPerformed -= MarkDirty;
         }
 
         public override void OnInspectorGUI()
@@ -33,6 +40,8 @@ namespace BurstLines.Editors
         }
 
         public abstract void DuringSceneGUI(SceneView sceneView);
+
+        protected abstract void MarkDirty();
     }
 }
 #endif

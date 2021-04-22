@@ -12,7 +12,7 @@ namespace BurstLines
     {
         Immediate,
         Retained,
-        CodeAccess
+        Code
     }
 
     public enum BillboardMethod

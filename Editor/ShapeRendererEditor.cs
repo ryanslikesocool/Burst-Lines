@@ -67,22 +67,12 @@ namespace BurstLines.Editors
 
             if (GUILayout.Button("Mark All Dirty"))
             {
-                foreach (ShapeSO shapeSO in shapeRenderer.shapes)
-                {
-                    if (shapeSO == null) { continue; }
-                    shapeSO.GetProps(out Shape shape);
-                    shape.MarkDirty();
-                }
+                shapeRenderer.shapes.ForEach(s => s?.Shape.MarkDirty());
             }
 
             if (EditorGUI.EndChangeCheck())
             {
-                foreach (ShapeSO shapeSO in shapeRenderer.shapes)
-                {
-                    if (shapeSO == null) { continue; }
-                    shapeSO.GetProps(out Shape shape);
-                    shape.MarkDirty();
-                }
+                shapeRenderer.shapes.ForEach(s => s?.Shape.MarkDirty());
             }
             serializedObject.ApplyModifiedProperties();
         }

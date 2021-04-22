@@ -33,7 +33,7 @@ namespace BurstLines.Editors
         private ReorderableList pointsList;
         private ReorderableList colorsList;
 
-        public override void OnEnable()
+        protected override void OnEnable()
         {
             base.OnEnable();
 
@@ -59,7 +59,7 @@ namespace BurstLines.Editors
 
             pointsList = new ReorderableList(serializedObject, points, true, true, true, true)
             {
-                drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, $"Points ({points.arraySize})"); },
+                drawHeaderCallback = (Rect rect) => EditorGUI.LabelField(rect, $"Points ({points.arraySize})"),
                 drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
                 {
                     rect.y += 2;
@@ -73,7 +73,7 @@ namespace BurstLines.Editors
 
             colorsList = new ReorderableList(serializedObject, colors, true, true, true, true)
             {
-                drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, $"Colors ({colors.arraySize})"); },
+                drawHeaderCallback = (Rect rect) => EditorGUI.LabelField(rect, $"Colors ({colors.arraySize})"),
                 drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
                 {
                     rect.y += 2;
@@ -81,15 +81,16 @@ namespace BurstLines.Editors
                     EditorGUI.PropertyField(rect, colors.GetArrayElementAtIndex(index));
                     rect.y += 2;
                 },
-                onReorderCallback = (ReorderableList list) => { polygonShape.MarkDirty(); }
+                onReorderCallback = (ReorderableList list) => polygonShape.MarkDirty()
             };
             colorsList.list = polygonShape.colors;
 
             SceneView.duringSceneGui += DuringSceneGUI;
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
             SceneView.duringSceneGui -= DuringSceneGUI;
         }
 
@@ -109,7 +110,7 @@ namespace BurstLines.Editors
 
             if (EditorGUI.EndChangeCheck())
             {
-                polygonShape.MarkDirty();
+                MarkDirty();
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -118,6 +119,11 @@ namespace BurstLines.Editors
         public override void DuringSceneGUI(SceneView sceneView)
         {
             ShapeEditors.DrawHandles(scriptableObject, polygonShape, Tools.current);
+        }
+
+        protected override void MarkDirty()
+        {
+            polygonShape.MarkDirty();
         }
     }
 }

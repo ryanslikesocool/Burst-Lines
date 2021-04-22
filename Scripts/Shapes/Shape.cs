@@ -10,15 +10,13 @@ namespace BurstLines
     [System.Serializable]
     public abstract class Shape
     {
-        protected const float EPSILON = 0.000001f;
-
         public bool IsDirty { get; private set; }
 
         public float3 translation;
         public float3 eulerRotation;
         public quaternion Rotation
         {
-            get { return Quaternion.Euler(eulerRotation); }
+            get => Quaternion.Euler(eulerRotation);
             set
             {
                 eulerRotation = value.EulerAngles();

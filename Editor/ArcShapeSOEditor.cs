@@ -29,7 +29,7 @@ namespace BurstLines.Editors
 
         private ReorderableList colorsList;
 
-        public override void OnEnable()
+        protected override void OnEnable()
         {
             base.OnEnable();
 
@@ -67,8 +67,9 @@ namespace BurstLines.Editors
             SceneView.duringSceneGui += DuringSceneGUI;
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
             SceneView.duringSceneGui -= DuringSceneGUI;
         }
 
@@ -85,7 +86,7 @@ namespace BurstLines.Editors
 
             if (EditorGUI.EndChangeCheck())
             {
-                arcShape.MarkDirty();
+                MarkDirty();
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -94,6 +95,11 @@ namespace BurstLines.Editors
         public override void DuringSceneGUI(SceneView sceneView)
         {
             ShapeEditors.DrawHandles(scriptableObject, arcShape, Tools.current);
+        }
+
+        protected override void MarkDirty()
+        {
+            arcShape.MarkDirty();
         }
     }
 }

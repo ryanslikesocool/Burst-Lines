@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 540c677cdde854ecba1155c88e598a92, type: 3}
   m_Name: Arc
   m_EditorClassIdentifier: 
+  material: {fileID: 0}
   shape:
     translation:
       x: 0
@@ -268,14 +269,14 @@ MonoBehaviour:
     - x: 0.024533808
       y: 0.49939775
       z: 0
-    - x: -0.016359627
-      y: 0.49973232
+    - x: -0.016359568
+      y: 0.4997323
       z: 0
     - x: -0.05714345
       y: 0.4967239
       z: 0
-    - x: -0.09754521
-      y: 0.49039266
+    - x: -0.09754515
+      y: 0.49039263
       z: 0
     - x: -0.13729435
       y: 0.4807809
@@ -284,7 +285,7 @@ MonoBehaviour:
       y: 0.46795297
       z: 0
     - x: -0.21377754
-      y: 0.45199463
+      y: 0.4519947
       z: 0
     - x: -0.25000006
       y: 0.4330127

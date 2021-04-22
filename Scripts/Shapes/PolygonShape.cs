@@ -211,7 +211,7 @@ namespace BurstLines
                 pointsToRender = new NativeArray<float3>((positionsIn.Length - vertexOffset) * 4, Allocator.Persistent);
                 CalculateVerticesQuadJob calculateVerticesQuadJob = new CalculateVerticesQuadJob
                 {
-                    Epsilon = EPSILON,
+                    Epsilon = Extensions.EPSILON,
                     Right3 = new float3(1, 0, 0),
                     QuaterTurn = quaternion.Euler(0, 0, math.PI * 0.5f),
                     CloseShape = closeShape,
@@ -256,10 +256,7 @@ namespace BurstLines
                     break;
                 case CenterMode.Average:
                     center = Vector3.zero;
-                    foreach (float3 point in points)
-                    {
-                        center += point;
-                    }
+                    points.ForEach(p => center += p);
                     center /= points.Length;
                     break;
             }

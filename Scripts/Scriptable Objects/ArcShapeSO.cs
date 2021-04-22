@@ -5,13 +5,10 @@ using UnityEngine;
 namespace BurstLines
 {
     [CreateAssetMenu(menuName = "Burst Lines/Arc Shape")]
-    public class ArcShapeSO : ShapeSO
+    public class ArcShapeSO : ShapeSO<ArcShape>
     {
         public ArcShape shape;
 
-        public override void GetProps(out Shape shape)
-        {
-            shape = this.shape;
-        }
+        public override Shape Shape => this.shape;
     }
 }

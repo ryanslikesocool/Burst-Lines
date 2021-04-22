@@ -28,22 +28,13 @@ namespace BurstLines
 
         private void OnEnable()
         {
-            foreach (ShapeSO shapeSO in shapes)
-            {
-                if (shapeSO == null) { continue; }
-                shapeSO.GetProps(out Shape shape);
-                shape.MarkDirty();
-            }
+            shapes.ForEach(s => s?.Shape.MarkDirty());
         }
 
         private void OnDisable()
         {
             ClearMeshRenderers();
-            foreach (ShapeSO shapeSO in shapes)
-            {
-                shapeSO.GetProps(out Shape shape);
-                shape.Clear();
-            }
+            shapes.ForEach(s => s?.Shape.Clear());
         }
 
         private void OnRenderObject()
@@ -64,7 +55,7 @@ namespace BurstLines
             {
                 if (shapeSO == null) { continue; }
 
-                shapeSO.GetProps(out Shape shape);
+                Shape shape = shapeSO.Shape;
 
                 if (!shape.IsDirty) { continue; }
 
@@ -85,7 +76,7 @@ namespace BurstLines
                 case RenderMode.Retained:
                     RenderRetained();
                     break;
-                case RenderMode.CodeAccess:
+                case RenderMode.Code:
                     RenderCodeAccess();
                     break;
             }
@@ -107,14 +98,7 @@ namespace BurstLines
             GL.PushMatrix();
             GL.MultMatrix(transform.localToWorldMatrix);
 
-            foreach (ShapeSO shapeSO in shapes)
-            {
-                if (shapeSO == null) { continue; }
-
-                shapeSO.GetProps(out Shape shape);
-
-                shape.Render();
-            }
+            shapes.ForEach(s => s?.Shape.Render());
 
             GL.PopMatrix();
         }
@@ -127,7 +111,7 @@ namespace BurstLines
             {
                 if (shapeSO == null) { continue; }
 
-                shapeSO.GetProps(out Shape shape);
+                Shape shape = shapeSO.Shape;
 
                 Mesh mesh = shape.Retain();
 
@@ -151,7 +135,7 @@ namespace BurstLines
             {
                 if (shapeSO == null) { continue; }
 
-                shapeSO.GetProps(out Shape shape);
+                Shape shape = shapeSO.Shape;
 
                 Mesh mesh = shape.Retain();
 

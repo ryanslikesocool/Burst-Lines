@@ -1,9 +1,10 @@
 ﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
 
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Mathematics;
-using System.Runtime.CompilerServices;
 
 namespace BurstLines
 {
@@ -159,6 +160,14 @@ namespace BurstLines
             angles.z = math.atan2(siny_cosp, cosy_cosp);
 
             return angles;
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
+        {
+            foreach (T item in collection)
+            {
+                action(item);
+            }
         }
     }
 }
