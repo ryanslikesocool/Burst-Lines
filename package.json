@@ -1,0 +1,20 @@
+{
+    "name": "com.ifelse.burstlines",
+    "displayName": "Burst Lines",
+    "version": "1.0.0",
+    "unity": "2020.2",
+    "description": "Jobs-based line rendering for Unity 2020.2+.",
+    "documentationUrl": "https://github.com/ryanslikesocool/Burst-Lines",
+    "dependencies": {
+        "com.unity.jobs": "0.8.0-preview.23",
+        "com.unity.mathematics": "1.2.1",
+        "com.unity.burst": "1.6.0-pre.2",
+        "com.unity.collection": "0.15.0-preview.21"
+    },
+    "author": {
+        "name": "Ryan Boyer",
+        "email": "ryanjboyer@gmail.com",
+        "url": "http://ryanjboyer.com/"
+    },
+    "type": "library"
+}
