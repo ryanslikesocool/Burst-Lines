@@ -400,7 +400,7 @@ namespace BurstLines
                 Color[] remappedColors = new Color[vertexColors.Length];
                 for (int i = 0; i < vertexColors.Length; i++)
                 {
-                    remappedColors[i] = vertexColors[(i + offset).Wrap(0, vertexColors.Length, 1)];
+                    remappedColors[i] = vertexColors[(i + offset).Wrap(vertexColors.Length)];
                 }
 
                 if (!closeShape)
@@ -467,10 +467,10 @@ namespace BurstLines
 
             private void CalculateUndefined(int index)
             {
-                float3 a = Points[(index - 1).Wrap(0, Points.Length, 1)];
+                float3 a = Points[(index - 1).Wrap(Points.Length)];
                 float3 b = Points[index];
-                float3 c = Points[(index + 1).Wrap(0, Points.Length, 1)];
-                float3 d = Points[(index + 2).Wrap(0, Points.Length, 1)];
+                float3 c = Points[(index + 1).Wrap(Points.Length)];
+                float3 d = Points[(index + 2).Wrap(Points.Length)];
 
                 float3 abDist = math.normalize(b - a);
                 float3 bcDist = math.normalize(c - b);
@@ -516,7 +516,7 @@ namespace BurstLines
             private void CalculatePixelLine(int index)
             {
                 float3 a = Points[index];
-                float3 b = Points[(index + 1).Wrap(0, Points.Length, 1)];
+                float3 b = Points[(index + 1).Wrap(Points.Length)];
 
                 int lineStart = index * 2;
 
@@ -534,7 +534,7 @@ namespace BurstLines
             public void Execute(int index)
             {
                 float3 a = Points[index];
-                float3 b = Points[(index + 1).Wrap(0, Points.Length, 1)];
+                float3 b = Points[(index + 1).Wrap(Points.Length)];
 
                 int lineStart = index * 2;
 

@@ -9,7 +9,7 @@ namespace BurstLines
 {
     public static class Extensions
     {
-        public const float EPSILON = 0.000001f;
+        public const float EPSILON = 0.00001f;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float AngleSigned(float3 lhs, float3 rhs, float3 normal)
@@ -27,21 +27,24 @@ namespace BurstLines
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Wrap(this int input, int min, int max, int iterations)
+        public static int Wrap(this int input, int min, int max)
         {
             if (min >= max) { return input; }
-            for (int i = 0; i < iterations; i++)
+            while (input < min)
             {
-                if (input < min)
-                {
-                    input += max - min;
-                }
-                else if (input >= max)
-                {
-                    input -= max - min;
-                }
+                input += max - min;
+            }
+            while (input >= max)
+            {
+                input -= max - min;
             }
             return input;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Wrap(this int input, int max)
+        {
+            return input.Wrap(0, max);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,19 +133,6 @@ namespace BurstLines
         {
             if (math.distancesq(a, b) < EPSILON) { return true; }
             return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SquareMagnitude(this float3 point)
-        {
-            return point.x * point.x + point.y * point.y + point.z * point.z;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Magnitude(this float3 point)
-        {
-            float sqMag = point.SquareMagnitude();
-            return sqMag > 0 ? math.sqrt(sqMag) : 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

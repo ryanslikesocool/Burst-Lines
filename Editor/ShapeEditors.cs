@@ -4,6 +4,7 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using Unity.Mathematics;
 
 namespace BurstLines.Editors
 {
@@ -170,7 +171,7 @@ namespace BurstLines.Editors
         public static void ScaleHandle(ShapeSO scriptableObject, Shape shape)
         {
             Vector3 scale = shape.scale;
-            float magnitude = shape.scale.SquareMagnitude();
+            float magnitude = math.lengthsq(shape.scale);
 
             EditorGUI.BeginChangeCheck();
 
