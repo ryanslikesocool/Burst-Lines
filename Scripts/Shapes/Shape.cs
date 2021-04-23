@@ -9,7 +9,7 @@ using Unity.Collections;
 namespace BurstLines
 {
     [Serializable]
-    public class Shape
+    public abstract class Shape
     {
         public bool IsDirty { get; private set; }
 

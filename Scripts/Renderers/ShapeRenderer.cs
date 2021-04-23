@@ -11,7 +11,7 @@ using UnityEditor;
 namespace BurstLines
 {
     [ExecuteInEditMode]
-    public class ShapeRenderer : MonoBehaviour
+    public abstract class ShapeRenderer<T> : MonoBehaviour where T : Shape, new()
     {
 #if UNITY_EDITOR
         public bool renderInEditMode = true;
@@ -19,16 +19,16 @@ namespace BurstLines
         public ShapeType shapeType = ShapeType.Polygon;
         public RenderMode renderMode = RenderMode.Immediate;
 
-        public Shape shape = new PolygonShape();
+        public T shape = new T();
 
         private new MeshRenderer renderer = null;
         private MeshFilter filter = null;
 
-        private Mesh mesh;
+        protected Mesh mesh;
         public Mesh Mesh
         {
             get => mesh;
-            set
+            protected set
             {
                 mesh = value;
                 if (filter != null)
@@ -51,7 +51,7 @@ namespace BurstLines
             shape?.Clear();
         }
 
-        private void OnRenderObject()
+        protected virtual void OnRenderObject()
         {
 #if UNITY_EDITOR
             if (!EditorApplication.isPlaying && !renderInEditMode)
@@ -87,20 +87,12 @@ namespace BurstLines
             }
         }
 
-        private void DestroyMesh()
+        protected virtual void DestroyMesh()
         {
-            if (filter != null)
-            {
-                Extensions.DestroySafe(filter.mesh);
-                Extensions.DestroySafe(filter);
-            }
-            if (renderer != null)
-            {
-                Extensions.DestroySafe(renderer);
-            }
+            Extensions.DestroySafe(filter.sharedMesh);
         }
 
-        private void RenderImmediate()
+        protected virtual void RenderImmediate()
         {
             immediateModeMaterial.SetPass(0);
             GL.PushMatrix();
@@ -111,7 +103,7 @@ namespace BurstLines
             GL.PopMatrix();
         }
 
-        private void RenderRetained()
+        protected virtual void RenderRetained()
         {
             if (shape == null) { return; }
 
@@ -122,27 +114,11 @@ namespace BurstLines
             Mesh = shape.Retain();
         }
 
-        private void RenderCodeAccess()
+        protected virtual void RenderCodeAccess()
         {
             if (shape == null) { return; }
 
             Mesh = shape.Retain();
-        }
-
-        public void MarkDirty(ShapeType oldShapeType, bool force = false)
-        {
-            if (oldShapeType != shapeType || force)
-            {
-                switch (shapeType)
-                {
-                    case ShapeType.Polygon:
-                        shape = new PolygonShape();
-                        break;
-                    case ShapeType.Arc:
-                        shape = new ArcShape();
-                        break;
-                }
-            }
         }
     }
 }

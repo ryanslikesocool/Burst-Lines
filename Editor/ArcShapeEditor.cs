@@ -7,9 +7,20 @@ using UnityEditorInternal;
 
 namespace BurstLines.Editors
 {
-    public class ArcShapeEditor : ShapeEditor<ArcShape>
+    [CustomEditor(typeof(ArcShapeRenderer))]
+    public class ArcShapeEditor : Editor
     {
-        private ArcShape arcShape;
+        protected ArcShapeRenderer shapeRenderer;
+        private ArcShape shapeObj;
+
+        protected SerializedProperty shapeType;
+        protected SerializedProperty renderMode;
+        protected SerializedProperty shape;
+        protected SerializedProperty immediateModeMaterial;
+
+        protected SerializedProperty translation;
+        protected SerializedProperty rotation;
+        protected SerializedProperty scale;
 
         private SerializedProperty angleA;
         private SerializedProperty angleB;
@@ -26,43 +37,63 @@ namespace BurstLines.Editors
         private SerializedProperty quadLineAlignment;
         private SerializedProperty quadLineThickness;
 
-        public ArcShapeEditor(ShapeRenderer shapeRenderer, SerializedProperty property) : base(shapeRenderer, property) { }
-
-        public override void OnEnable(Shape shapeObj)
+        private void OnEnable()
         {
-            base.OnEnable(shapeObj);
+            shapeRenderer = (ArcShapeRenderer)target;
+            shapeObj = shapeRenderer.shape;
 
-            arcShape = shapeObj as ArcShape;
+            shapeType = serializedObject.FindProperty("shapeType");
+            renderMode = serializedObject.FindProperty("renderMode");
+            shape = serializedObject.FindProperty("shape");
+            immediateModeMaterial = serializedObject.FindProperty("immediateModeMaterial");
 
-            angleA = property.FindPropertyRelative("angleA");
-            angleB = property.FindPropertyRelative("angleB");
-            radius = property.FindPropertyRelative("radius");
-            segments = property.FindPropertyRelative("segments");
+            translation = shape.FindPropertyRelative("translation");
+            rotation = shape.FindPropertyRelative("rotation");
+            scale = shape.FindPropertyRelative("scale");
 
-            colorMode = property.FindPropertyRelative("colorMode");
-            blendMode = property.FindPropertyRelative("blendMode");
-            color = property.FindPropertyRelative("color");
-            colors = property.FindPropertyRelative("colors");
-            gradient = property.FindPropertyRelative("gradient");
-            rendererType = property.FindPropertyRelative("rendererType");
-            billboardMethod = property.FindPropertyRelative("billboardMethod");
-            quadLineAlignment = property.FindPropertyRelative("quadLineAlignment");
-            quadLineThickness = property.FindPropertyRelative("quadLineThickness");
+            angleA = shape.FindPropertyRelative("angleA");
+            angleB = shape.FindPropertyRelative("angleB");
+            radius = shape.FindPropertyRelative("radius");
+            segments = shape.FindPropertyRelative("segments");
+
+            colorMode = shape.FindPropertyRelative("colorMode");
+            blendMode = shape.FindPropertyRelative("blendMode");
+            color = shape.FindPropertyRelative("color");
+            colors = shape.FindPropertyRelative("colors");
+            gradient = shape.FindPropertyRelative("gradient");
+            rendererType = shape.FindPropertyRelative("rendererType");
+            billboardMethod = shape.FindPropertyRelative("billboardMethod");
+            quadLineAlignment = shape.FindPropertyRelative("quadLineAlignment");
+            quadLineThickness = shape.FindPropertyRelative("quadLineThickness");
 
             SceneView.duringSceneGui += DuringSceneGUI;
+            Undo.undoRedoPerformed += MarkDirty;
         }
 
-        public override void OnDisable()
+        private void OnDisable()
         {
-            base.OnDisable();
             SceneView.duringSceneGui -= DuringSceneGUI;
+            Undo.undoRedoPerformed -= MarkDirty;
         }
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             EditorGUI.BeginChangeCheck();
 
-            base.OnInspectorGUI();
+            EditorGUILayout.PropertyField(shapeType);
+            EditorGUILayout.PropertyField(renderMode);
+            EditorGUI.indentLevel++;
+            if (shapeRenderer.renderMode == RenderMode.Immediate)
+            {
+                EditorGUILayout.PropertyField(immediateModeMaterial);
+            }
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+
+            ShapeEditors.TransformEditor(translation, rotation, scale);
 
             ShapeEditors.ArcShapeEditor(angleA, angleB, radius, segments);
             ShapeEditors.RendererEditor(colorMode, blendMode, color, colors, gradient, rendererType, billboardMethod, quadLineAlignment, quadLineThickness);
@@ -71,16 +102,23 @@ namespace BurstLines.Editors
             {
                 MarkDirty();
             }
+
+            if (GUILayout.Button("Mark All Dirty"))
+            {
+                shapeRenderer.shape?.MarkDirty();
+            }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
-        public override void DuringSceneGUI(SceneView sceneView)
+        private void DuringSceneGUI(SceneView sceneView)
         {
-            shapeRenderer.DrawHandles(arcShape, Tools.current);
+            shapeRenderer.DrawHandles(shapeObj, Tools.current);
         }
 
-        protected override void MarkDirty()
+        private void MarkDirty()
         {
-            arcShape.MarkDirty();
+            shapeObj.MarkDirty();
         }
     }
 }

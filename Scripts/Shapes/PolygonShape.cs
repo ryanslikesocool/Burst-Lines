@@ -382,7 +382,7 @@ namespace BurstLines
                         for (int i = 0; i < colors.Length; i++)
                         {
                             int vIndex = i * 2;
-                            Color eval = gradient.Evaluate(i * step);
+                            Color eval = gradient.Evaluate(math.saturate(i * step));
                             if (vIndex >= vertexColors.Length) { break; }
                             vertexColors[vIndex + 0] = eval;
                             vertexColors[vIndex + 1] = eval;

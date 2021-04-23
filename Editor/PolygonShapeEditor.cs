@@ -7,9 +7,20 @@ using UnityEditorInternal;
 
 namespace BurstLines.Editors
 {
-    public class PolygonShapeEditor : ShapeEditor<PolygonShape>
+    [CustomEditor(typeof(PolygonShapeRenderer))]
+    public class PolygonShapeEditor : Editor
     {
-        private PolygonShape polygonShape;
+        protected PolygonShapeRenderer shapeRenderer;
+        private PolygonShape shapeObj;
+
+        protected SerializedProperty shapeType;
+        protected SerializedProperty renderMode;
+        protected SerializedProperty shape;
+        protected SerializedProperty immediateModeMaterial;
+
+        protected SerializedProperty translation;
+        protected SerializedProperty rotation;
+        protected SerializedProperty scale;
 
         private SerializedProperty closeShape;
         private SerializedProperty points;
@@ -29,67 +40,92 @@ namespace BurstLines.Editors
         private SerializedProperty capB;
         private SerializedProperty capDetailB;
 
-        public PolygonShapeEditor(ShapeRenderer shapeRenderer, SerializedProperty property) : base(shapeRenderer, property) { }
-
-        public override void OnEnable(Shape shapeObj)
+        private void OnEnable()
         {
-            base.OnEnable(shapeObj);
+            shapeRenderer = (PolygonShapeRenderer)target;
+            shapeObj = shapeRenderer.shape;
 
-            polygonShape = shapeObj as PolygonShape;
+            shapeType = serializedObject.FindProperty("shapeType");
+            renderMode = serializedObject.FindProperty("renderMode");
+            shape = serializedObject.FindProperty("shape");
+            immediateModeMaterial = serializedObject.FindProperty("immediateModeMaterial");
 
-            closeShape = property.FindPropertyRelative("closeShape");
-            points = property.FindPropertyRelative("points");
+            translation = shape.FindPropertyRelative("translation");
+            rotation = shape.FindPropertyRelative("rotation");
+            scale = shape.FindPropertyRelative("scale");
 
-            colorMode = property.FindPropertyRelative("colorMode");
-            blendMode = property.FindPropertyRelative("blendMode");
-            color = property.FindPropertyRelative("color");
-            colors = property.FindPropertyRelative("colors");
-            gradient = property.FindPropertyRelative("gradient");
-            rendererType = property.FindPropertyRelative("rendererType");
-            billboardMethod = property.FindPropertyRelative("billboardMethod");
-            quadLineAlignment = property.FindPropertyRelative("quadLineAlignment");
-            quadLineThickness = property.FindPropertyRelative("quadLineThickness");
+            closeShape = shape.FindPropertyRelative("closeShape");
+            points = shape.FindPropertyRelative("points");
 
-            capA = property.FindPropertyRelative("capA");
-            capDetailA = property.FindPropertyRelative("capDetailA");
-            capB = property.FindPropertyRelative("capB");
-            capDetailB = property.FindPropertyRelative("capDetailB");
+            colorMode = shape.FindPropertyRelative("colorMode");
+            blendMode = shape.FindPropertyRelative("blendMode");
+            color = shape.FindPropertyRelative("color");
+            colors = shape.FindPropertyRelative("colors");
+            gradient = shape.FindPropertyRelative("gradient");
+            rendererType = shape.FindPropertyRelative("rendererType");
+            billboardMethod = shape.FindPropertyRelative("billboardMethod");
+            quadLineAlignment = shape.FindPropertyRelative("quadLineAlignment");
+            quadLineThickness = shape.FindPropertyRelative("quadLineThickness");
+
+            capA = shape.FindPropertyRelative("capA");
+            capDetailA = shape.FindPropertyRelative("capDetailA");
+            capB = shape.FindPropertyRelative("capB");
+            capDetailB = shape.FindPropertyRelative("capDetailB");
 
             SceneView.duringSceneGui += DuringSceneGUI;
+            Undo.undoRedoPerformed += MarkDirty;
         }
 
-        public override void OnDisable()
+        private void OnDisable()
         {
-            base.OnDisable();
             SceneView.duringSceneGui -= DuringSceneGUI;
+            Undo.undoRedoPerformed -= MarkDirty;
         }
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             EditorGUI.BeginChangeCheck();
 
-            base.OnInspectorGUI();
+            EditorGUILayout.PropertyField(shapeType);
+            EditorGUILayout.PropertyField(renderMode);
+            EditorGUI.indentLevel++;
+            if (shapeRenderer.renderMode == RenderMode.Immediate)
+            {
+                EditorGUILayout.PropertyField(immediateModeMaterial);
+            }
+            EditorGUI.indentLevel--;
 
-            ShapeEditors.PolygonShapeEditor(closeShape, points, polygonShape);
+            EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
 
+            ShapeEditors.TransformEditor(translation, rotation, scale);
+
+            ShapeEditors.PolygonShapeEditor(closeShape, points, shapeObj);
             ShapeEditors.RendererEditor(colorMode, blendMode, color, colors, gradient, rendererType, billboardMethod, quadLineAlignment, quadLineThickness);
-
             ShapeEditors.CapEditor(capA, capDetailA, capB, capDetailB, (RendererType)rendererType.enumValueIndex == RendererType.PixelLine);
 
             if (EditorGUI.EndChangeCheck())
             {
                 MarkDirty();
             }
+
+            if (GUILayout.Button("Mark All Dirty"))
+            {
+                shapeRenderer.shape?.MarkDirty();
+            }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
-        public override void DuringSceneGUI(SceneView sceneView)
+        private void DuringSceneGUI(SceneView sceneView)
         {
-            shapeRenderer.DrawHandles(polygonShape, Tools.current);
+            shapeRenderer.DrawHandles(shapeObj, Tools.current);
         }
 
-        protected override void MarkDirty()
+        private void MarkDirty()
         {
-            polygonShape?.MarkDirty();
+            shapeObj.MarkDirty();
         }
     }
 }
