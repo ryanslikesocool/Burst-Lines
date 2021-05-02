@@ -33,7 +33,7 @@ namespace BurstLines
                 Segments = segments,
                 Positions = positions
             };
-            inputDependencies = calculateSegmentsJob.ScheduleParallel(positions.Length, 64, inputDependencies);
+            inputDependencies = calculateSegmentsJob.Schedule(positions.Length, 64, inputDependencies);
             inputDependencies.Complete();
 
             if (positions.Length != points.Length)
@@ -48,7 +48,7 @@ namespace BurstLines
         }
 
         [BurstCompile]
-        private struct CalculateSegmentsJob : IJobFor
+        private struct CalculateSegmentsJob : IJobParallelFor
         {
             [ReadOnly] public float3 Right3;
             [ReadOnly] public float AngleA;

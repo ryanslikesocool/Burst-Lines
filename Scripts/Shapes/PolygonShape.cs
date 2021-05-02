@@ -17,9 +17,9 @@ namespace BurstLines
         public RendererType rendererType;
         public ColorMode colorMode = ColorMode.Solid;
         public BlendMode blendMode = BlendMode.Mix;
-        [ColorUsage(true, true)] public Color color = new Color(0, 0, 0, 255);
-        [ColorUsage(true, true)] public Color[] colors = new Color[0];
-        [GradientUsage(true)] public Gradient gradient = new Gradient();
+        public Color color = new Color(0, 0, 0, 255);
+        public Color[] colors = new Color[0];
+        public Gradient gradient = new Gradient();
         protected Color[] vertexColors;
         public Mesh mesh;
         public bool closeShape = true;
@@ -224,7 +224,7 @@ namespace BurstLines
                     CapA = capA,
                     CapB = capB
                 };
-                inputDependencies = calculateVerticesQuadJob.ScheduleParallel(positionsIn.Length - vertexOffset, 32, inputDependencies);
+                inputDependencies = calculateVerticesQuadJob.Schedule(positionsIn.Length - vertexOffset, 32, inputDependencies);
             }
             else
             {
@@ -234,7 +234,7 @@ namespace BurstLines
                     Points = positionsIn,
                     VertexPositions = pointsToRender
                 };
-                inputDependencies = calculateVerticesLineJob.ScheduleParallel(positionsIn.Length - vertexOffset, 64, inputDependencies);
+                inputDependencies = calculateVerticesLineJob.Schedule(positionsIn.Length - vertexOffset, 64, inputDependencies);
             }
 
             return inputDependencies;
@@ -275,14 +275,17 @@ namespace BurstLines
             int pointCount = points.Length;
             int vertexCount = pointsToRender.Length;
 
+            if (colorMode == ColorMode.None)
+            {
+                color = Color.white;
+            }
+
             switch (colorMode)
             {
+                case ColorMode.None:
                 case ColorMode.Solid:
                     colors = new Color[vertexCount];
-                    for (int i = 0; i < vertexCount; i++)
-                    {
-                        colors[i] = color;
-                    }
+                    vertexCount.For(i => colors[i] = color);
                     vertexColors = colors;
                     break;
                 case ColorMode.PerPoint:
@@ -291,47 +294,23 @@ namespace BurstLines
                         Color[] pointColors = new Color[pointCount];
                         if (colors.Length < pointCount)
                         {
-                            for (int i = 0; i < colors.Length; i++)
-                            {
-                                pointColors[i] = colors[i];
-                            }
-                            for (int i = colors.Length; i < pointCount; i++)
-                            {
-                                pointColors[i] = colors[colors.Length - 1];
-                            }
+                            colors.For((c, i) => pointColors[i] = c);
+                            pointCount.For(i => pointColors[i] = colors[colors.Length - 1]);
                         }
                         else
                         {
-                            for (int i = 0; i < pointCount; i++)
-                            {
-                                pointColors[i] = colors[i];
-                            }
+                            pointCount.For(i => pointColors[i] = colors[i]);
                         }
                         colors = pointColors;
                     }
 
                     vertexColors = new Color[vertexCount];
-                    if (rendererType == RendererType.QuadLine)
+                    int vertexMultiplier = rendererType == RendererType.QuadLine ? 4 : 2;
+                    for (int i = 0; i < colors.Length; i++)
                     {
-                        for (int i = 0; i < colors.Length; i++)
-                        {
-                            int vIndex = i * 4;
-                            if (vIndex >= vertexColors.Length) { break; }
-                            vertexColors[vIndex + 0] = colors[i];
-                            vertexColors[vIndex + 1] = colors[i];
-                            vertexColors[vIndex + 2] = colors[i];
-                            vertexColors[vIndex + 3] = colors[i];
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < colors.Length; i++)
-                        {
-                            int vIndex = i * 2;
-                            if (vIndex >= vertexColors.Length) { break; }
-                            vertexColors[vIndex + 0] = colors[i];
-                            vertexColors[vIndex + 1] = colors[i];
-                        }
+                        int vIndex = i * vertexMultiplier;
+                        if (vIndex >= vertexColors.Length) { break; }
+                        vertexMultiplier.For(j => vertexColors[vIndex + j] = colors[i]);
                     }
                     break;
                 case ColorMode.PerVertex:
@@ -340,21 +319,12 @@ namespace BurstLines
                         Color[] localVertexColors = new Color[vertexCount];
                         if (colors.Length < vertexCount)
                         {
-                            for (int i = 0; i < colors.Length; i++)
-                            {
-                                localVertexColors[i] = colors[i];
-                            }
-                            for (int i = colors.Length; i < vertexCount; i++)
-                            {
-                                localVertexColors[i] = colors[colors.Length - 1];
-                            }
+                            colors.For((c, i) => localVertexColors[i] = c);
+                            vertexCount.For(i => localVertexColors[i] = colors[colors.Length - 1]);
                         }
                         else
                         {
-                            for (int i = 0; i < vertexCount; i++)
-                            {
-                                localVertexColors[i] = colors[i];
-                            }
+                            vertexCount.For(i => localVertexColors[i] = colors[i]);
                         }
                         colors = localVertexColors;
                     }
@@ -369,8 +339,8 @@ namespace BurstLines
                         for (int i = 0; i < pointCount; i++)
                         {
                             int vIndex = i * 4;
-                            Color eval = gradient.Evaluate(i * step);
                             if (vIndex >= vertexColors.Length) { break; }
+                            Color eval = gradient.Evaluate(math.saturate(i * step));
                             vertexColors[vIndex + 0] = eval;
                             vertexColors[vIndex + 1] = eval;
                             vertexColors[vIndex + 2] = eval;
@@ -382,8 +352,8 @@ namespace BurstLines
                         for (int i = 0; i < colors.Length; i++)
                         {
                             int vIndex = i * 2;
-                            Color eval = gradient.Evaluate(math.saturate(i * step));
                             if (vIndex >= vertexColors.Length) { break; }
+                            Color eval = gradient.Evaluate(math.saturate(i * step));
                             vertexColors[vIndex + 0] = eval;
                             vertexColors[vIndex + 1] = eval;
                         }
@@ -391,42 +361,21 @@ namespace BurstLines
                     break;
             }
 
-            if ((colorMode != ColorMode.Solid)
-             && blendMode == BlendMode.Mix)
+            if (colorMode != ColorMode.Solid && blendMode == BlendMode.Mix)
             {
                 int offset = rendererType == RendererType.PixelLine ? 1 : 2;
                 Color[] remappedColors = new Color[vertexColors.Length];
-                for (int i = 0; i < vertexColors.Length; i++)
-                {
-                    remappedColors[i] = vertexColors[(i + offset).Wrap(vertexColors.Length)];
-                }
+
+                vertexColors.Length.For(i => remappedColors[i] = vertexColors[(i + offset).Wrap(vertexColors.Length)]);
 
                 if (!closeShape)
                 {
-                    if (colorMode == ColorMode.PerPoint)
+                    Color overrideColor = colorMode == ColorMode.PerPoint ? colors[colors.Length - 1] : gradient.Evaluate(1);
+
+                    remappedColors[remappedColors.Length - 1] = overrideColor;
+                    if (rendererType == RendererType.QuadLine)
                     {
-                        if (rendererType == RendererType.PixelLine)
-                        {
-                            remappedColors[remappedColors.Length - 1] = colors[colors.Length - 1];
-                        }
-                        else
-                        {
-                            remappedColors[remappedColors.Length - 1] = colors[colors.Length - 1];
-                            remappedColors[remappedColors.Length - 2] = colors[colors.Length - 1];
-                        }
-                    }
-                    else if (colorMode == ColorMode.Gradient)
-                    {
-                        if (rendererType == RendererType.PixelLine)
-                        {
-                            remappedColors[remappedColors.Length - 1] = gradient.Evaluate(1);
-                        }
-                        else
-                        {
-                            Color eval = gradient.Evaluate(1);
-                            remappedColors[remappedColors.Length - 1] = eval;
-                            remappedColors[remappedColors.Length - 2] = eval;
-                        }
+                        remappedColors[remappedColors.Length - 2] = overrideColor;
                     }
                 }
 
@@ -435,7 +384,7 @@ namespace BurstLines
         }
 
         [BurstCompile]
-        private struct CalculateVerticesQuadJob : IJobFor
+        private struct CalculateVerticesQuadJob : IJobParallelFor
         {
             [ReadOnly] public float Epsilon;
             [ReadOnly] public float3 Right3;
@@ -454,11 +403,11 @@ namespace BurstLines
             {
                 switch (BillboardMethod)
                 {
+                    case BillboardMethod.TransformZ:
+                        CalculateUndefined(index);
+                        break;
                     default:
                         Debug.LogWarning($"This billboard method ({BillboardMethod}) isn't implemented yet.");
-                        break;
-                    case BillboardMethod.Undefined:
-                        CalculateUndefined(index);
                         break;
                 }
             }
@@ -477,10 +426,10 @@ namespace BurstLines
                 float3 directionABC = math.normalize(bcDist - abDist);
                 float3 directionBCD = math.normalize(cdDist - bcDist);
 
-                float radiansA = Extensions.RadiansSigned(-abDist, bcDist, new float3(0, 0, 1)) * 0.5f;
+                float radiansA = Extensions.RadiansSigned(-abDist, bcDist, math.forward()) * 0.5f;
                 float directionMultiplierABC = radiansA != 0 ? Thickness / math.sin(radiansA) : 0;
 
-                float radiansB = Extensions.RadiansSigned(-bcDist, cdDist, new float3(0, 0, 1)) * 0.5f;
+                float radiansB = Extensions.RadiansSigned(-bcDist, cdDist, math.forward()) * 0.5f;
                 float directionMultiplierBCD = radiansB != 0 ? Thickness / math.sin(radiansB) : 0;
 
                 directionABC *= directionMultiplierABC;
@@ -524,7 +473,7 @@ namespace BurstLines
         }
 
         [BurstCompile]
-        private struct CalculateVerticesLineJob : IJobFor
+        private struct CalculateVerticesLineJob : IJobParallelFor
         {
             [ReadOnly, DeallocateOnJobCompletion] public NativeArray<float3> Points;
             [WriteOnly, NativeDisableParallelForRestriction] public NativeArray<float3> VertexPositions;

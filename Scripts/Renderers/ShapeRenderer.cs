@@ -16,7 +16,6 @@ namespace BurstLines
 #if UNITY_EDITOR
         public bool renderInEditMode = true;
 #endif
-        public ShapeType shapeType = ShapeType.Polygon;
         public RenderMode renderMode = RenderMode.Immediate;
 
         public T shape = new T();

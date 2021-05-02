@@ -13,7 +13,6 @@ namespace BurstLines.Editors
         protected PolygonShapeRenderer shapeRenderer;
         private PolygonShape shapeObj;
 
-        protected SerializedProperty shapeType;
         protected SerializedProperty renderMode;
         protected SerializedProperty shape;
         protected SerializedProperty immediateModeMaterial;
@@ -45,7 +44,6 @@ namespace BurstLines.Editors
             shapeRenderer = (PolygonShapeRenderer)target;
             shapeObj = shapeRenderer.shape;
 
-            shapeType = serializedObject.FindProperty("shapeType");
             renderMode = serializedObject.FindProperty("renderMode");
             shape = serializedObject.FindProperty("shape");
             immediateModeMaterial = serializedObject.FindProperty("immediateModeMaterial");
@@ -88,7 +86,6 @@ namespace BurstLines.Editors
 
             EditorGUI.BeginChangeCheck();
 
-            EditorGUILayout.PropertyField(shapeType);
             EditorGUILayout.PropertyField(renderMode);
             EditorGUI.indentLevel++;
             if (shapeRenderer.renderMode == RenderMode.Immediate)

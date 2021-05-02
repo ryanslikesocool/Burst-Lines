@@ -13,7 +13,6 @@ namespace BurstLines.Editors
         protected ArcShapeRenderer shapeRenderer;
         private ArcShape shapeObj;
 
-        protected SerializedProperty shapeType;
         protected SerializedProperty renderMode;
         protected SerializedProperty shape;
         protected SerializedProperty immediateModeMaterial;
@@ -42,7 +41,6 @@ namespace BurstLines.Editors
             shapeRenderer = (ArcShapeRenderer)target;
             shapeObj = shapeRenderer.shape;
 
-            shapeType = serializedObject.FindProperty("shapeType");
             renderMode = serializedObject.FindProperty("renderMode");
             shape = serializedObject.FindProperty("shape");
             immediateModeMaterial = serializedObject.FindProperty("immediateModeMaterial");
@@ -82,7 +80,6 @@ namespace BurstLines.Editors
 
             EditorGUI.BeginChangeCheck();
 
-            EditorGUILayout.PropertyField(shapeType);
             EditorGUILayout.PropertyField(renderMode);
             EditorGUI.indentLevel++;
             if (shapeRenderer.renderMode == RenderMode.Immediate)

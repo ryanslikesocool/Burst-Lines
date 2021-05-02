@@ -1,6 +1,7 @@
 ﻿// Made with <3 by Ryan Boyer http://ryanjboyer.com
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -14,10 +15,7 @@ namespace BurstLines
         public const float EPSILON = 0.00001f;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float AngleSigned(float3 lhs, float3 rhs, float3 normal)
-        {
-            return math.degrees(RadiansSigned(lhs, rhs, normal));
-        }
+        public static float AngleSigned(float3 lhs, float3 rhs, float3 normal) => math.degrees(RadiansSigned(lhs, rhs, normal));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float RadiansSigned(float3 lhs, float3 rhs, float3 normal)
@@ -44,10 +42,7 @@ namespace BurstLines
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Wrap(this int input, int max)
-        {
-            return input.Wrap(0, max);
-        }
+        public static int Wrap(this int input, int max) => input.Wrap(0, max);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveQuadAtIndex(ref NativeArray<float3> vertexArray, int quadIndex)
@@ -168,6 +163,23 @@ namespace BurstLines
             foreach (T item in collection)
             {
                 action(item);
+            }
+        }
+
+        public static void For<T>(this IEnumerable<T> collection, Action<T, int> action)
+        {
+            T[] array = collection.ToArray();
+            for (int i = 0; i < array.Length; i++)
+            {
+                action(array[i], i);
+            }
+        }
+
+        public static void For(this int length, Action<int> action)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                action(i);
             }
         }
 

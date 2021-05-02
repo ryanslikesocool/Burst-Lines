@@ -23,7 +23,7 @@ namespace BurstLines
 
     public enum BillboardMethod
     {
-        Undefined,
+        TransformZ,
         ZForward,
         FaceCameraPosition,
         FaceCameraPlane
@@ -50,6 +50,7 @@ namespace BurstLines
 
     public enum ColorMode
     {
+        None,
         Solid,
         PerPoint,
         PerVertex,

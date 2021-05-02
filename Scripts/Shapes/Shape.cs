@@ -47,8 +47,8 @@ namespace BurstLines
         public virtual JobHandle CalculateVertices(JobHandle inputDependencies, float3[] points) { throw new System.NotImplementedException(); }
         public virtual void CalculateColors() { throw new System.NotImplementedException(); }
 
-        public virtual JobHandle PreTransformJobs(JobHandle inputDependencies) { return inputDependencies; }
-        public virtual JobHandle PostTransformJobs(JobHandle inputDependencies) { return inputDependencies; }
-        public virtual JobHandle PostRender(JobHandle inputDependencies) { return inputDependencies; }
+        public virtual JobHandle PreTransformJobs(JobHandle inputDependencies) => inputDependencies;
+        public virtual JobHandle PostTransformJobs(JobHandle inputDependencies) => inputDependencies;
+        public virtual JobHandle PostRender(JobHandle inputDependencies) => inputDependencies;
     }
 }

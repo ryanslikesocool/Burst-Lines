@@ -51,7 +51,8 @@ namespace BurstLines.Editors
                     EditorGUILayout.PropertyField(blendMode);
                     EditorGUILayout.PropertyField(gradient);
                     break;
-                default:
+                case ColorMode.PerPoint:
+                case ColorMode.PerVertex:
                     EditorGUILayout.PropertyField(blendMode);
                     EditorGUILayout.PropertyField(colors);
                     break;
