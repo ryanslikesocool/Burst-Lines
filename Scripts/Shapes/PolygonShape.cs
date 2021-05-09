@@ -17,7 +17,7 @@ namespace BurstLines
         public RendererType rendererType;
         public ColorMode colorMode = ColorMode.Solid;
         public BlendMode blendMode = BlendMode.Mix;
-        public Color color = new Color(0, 0, 0, 255);
+        public Color color = new Color(0, 0, 0, 1);
         public Color[] colors = new Color[0];
         public Gradient gradient = new Gradient();
         protected Color[] vertexColors;

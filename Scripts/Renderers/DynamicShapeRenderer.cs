@@ -5,5 +5,8 @@ using UnityEngine;
 namespace BurstLines
 {
     [ExecuteInEditMode]
-    public class PolygonShapeRenderer : ShapeRenderer<PolygonShape> { }
+    public class DynamicShapeRenderer : MonoBehaviour
+    {
+
+    }
 }
